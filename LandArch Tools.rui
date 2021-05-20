@@ -1,0 +1,971 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RhinoUI major_ver="3" minor_ver="0" guid="69f5f9b3-2baf-42aa-910f-b7d558cf5498" localize="False" default_language_id="1033" dpi_scale="100">
+  <extend_rhino_menus>
+    <menu guid="d58ceae7-fdb0-4104-80da-274b94ad44a9">
+      <text>
+        <locale_1033>Extend Rhino Menus</locale_1033>
+      </text>
+    </menu>
+  </extend_rhino_menus>
+  <menus />
+  <tool_bar_groups>
+    <tool_bar_group guid="0cd49036-ed8c-4c9d-ab38-0e5d6ee3c9c7" dock_bar_guid32="00000000-0000-0000-0000-000000000000" dock_bar_guid64="089f347e-7c87-49e3-92ab-874f08614b71" active_tool_bar_group="2dcbaeaa-22d3-4df2-b280-a981986b76c8" single_file="False" hide_single_tab="False" point_floating="220,294">
+      <text>
+        <locale_1033>LandArch Tools</locale_1033>
+      </text>
+      <tool_bar_group_item guid="2dcbaeaa-22d3-4df2-b280-a981986b76c8" major_version="1" minor_version="1">
+        <text>
+          <locale_1033>LandArch Tools</locale_1033>
+        </text>
+        <tool_bar_id>69b13ca2-e1a4-4e0c-94a5-019b137651fb</tool_bar_id>
+      </tool_bar_group_item>
+      <dock_bar_info dpi_scale="100" dock_bar="False" docking="True" horz="False" visible="True" floating="True" mru_float_style="8192" bar_id="59523" mru_width="868" point_pos="-2,-2" float_point="220,294" rect_mru_dock_pos="0,0,0,0" dock_location_u="59420" dock_location="left" float_size="220,90" />
+    </tool_bar_group>
+  </tool_bar_groups>
+  <tool_bars>
+    <tool_bar guid="69b13ca2-e1a4-4e0c-94a5-019b137651fb" ImportedFromFileGuid="c7da84fc-2991-4824-832a-4f2509bd0ede" ImportedFromItemGuid="39f76644-e61b-4f33-a48a-bad0c5783f8e" bitmap_id="533ba74d-f27a-4b1c-9147-3c4708a9e5f3">
+      <text>
+        <locale_1033>LandArch Tools</locale_1033>
+      </text>
+      <tool_bar_item guid="2ee12efd-cc4a-4e9c-84ad-d9f68a37090d">
+        <left_macro_id>fbaa7976-2606-4c4e-8d83-5651d4cd4f02</left_macro_id>
+      </tool_bar_item>
+      <tool_bar_item guid="2d2448ae-0a40-48ab-a6f4-8eb00afccc05">
+        <left_macro_id>028fa608-63a7-42b4-82fb-7259b7003fb5</left_macro_id>
+      </tool_bar_item>
+      <tool_bar_item guid="69312408-5959-4514-848a-7fa6641712f6">
+        <left_macro_id>e76e7ea7-0d25-44a6-9ed3-43a85f3df8b0</left_macro_id>
+      </tool_bar_item>
+      <tool_bar_item guid="42e59df8-428c-46ac-a65a-8cd64e4cdcff">
+        <left_macro_id>4b67e1a0-373f-44d5-aa82-30382b12f599</left_macro_id>
+      </tool_bar_item>
+      <tool_bar_item guid="3476ac1b-b6f5-41f5-8a54-f37403e244d2">
+        <left_macro_id>653f86bb-d8a8-4779-a37c-f7e9bac0ea13</left_macro_id>
+      </tool_bar_item>
+      <tool_bar_item guid="f5bac3a7-b3f6-4f0a-9398-7f8f9385f327">
+        <left_macro_id>d5a1b6a2-dd5f-44bf-b366-59b113417446</left_macro_id>
+      </tool_bar_item>
+      <tool_bar_item guid="31a8080e-aa95-41b3-a180-65982b8f05e6">
+        <left_macro_id>1581c648-c6a9-472c-a4df-21de69dd9d67</left_macro_id>
+      </tool_bar_item>
+      <tool_bar_item guid="1c0a0c76-8c5b-4aaa-aa65-446fee135a3e">
+        <left_macro_id>b1e8b7d5-35eb-4e09-b40d-1ca5c016c284</left_macro_id>
+      </tool_bar_item>
+      <tool_bar_item guid="470e1e96-83c9-47f6-a146-70af6b4334f3">
+        <left_macro_id>15802b3c-73a7-4a79-9623-87e3d964e6b6</left_macro_id>
+      </tool_bar_item>
+    </tool_bar>
+  </tool_bars>
+  <macros>
+    <macro_item guid="fbaa7976-2606-4c4e-8d83-5651d4cd4f02" bitmap_id="2216bb3c-41b0-4cdf-85c7-2063576e4934">
+      <text>
+        <locale_1033>Macro 00</locale_1033>
+      </text>
+      <tooltip>
+        <locale_1033>Calculate grade between two points</locale_1033>
+      </tooltip>
+      <button_text>
+        <locale_1033>Calculate grade between two points</locale_1033>
+      </button_text>
+      <script>! _-RunPythonScript (
+'''
+
+Copyright &lt;2021&gt; &lt;Thomas Chapman&gt;
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+'''
+
+#Calculate grade between two given points
+#By Thomas Chapman on 11/01/2021
+
+import rhinoscriptsyntax as rs
+import math as m
+
+# Get points from user
+pt1 = rs.GetPoint('Pick the first point')
+pt2 = rs.GetPoint('Pick the second point')
+hypotenuse = rs.Distance(pt1, pt2)
+
+rs.EnableRedraw(False)
+
+
+# Find the rise of given points in any order
+if pt1.Z &gt; pt2.Z:
+    rise = pt1.Z - pt2.Z
+elif pt1.Z &lt; pt2.Z:
+    rise = pt2.Z - pt1.Z
+
+# Find the run of given points
+run = m.sqrt(hypotenuse**2 - rise**2)
+
+# Detect model units and scale to mm, if mm do nothing
+if rs.UnitSystem == 3:
+    rise = rise*100
+if rs.UnitSystem == 4:
+    rise = rise*1000
+
+# Calculate grade based on rise and run
+try:
+    grade = run / rise
+
+except ZeroDivisionError:
+    print('No Grade Found')
+    exit()
+
+# Print text dot to screen
+curve = rs.AddCurve([pt1,pt2])
+midpoint = rs.CurveMidPoint(curve)
+rs.DeleteObject(curve)
+rs.AddTextDot('1:' + str(abs(m.trunc(grade))),midpoint)
+
+rs.EnableRedraw(True)
+)</script>
+    </macro_item>
+    <macro_item guid="028fa608-63a7-42b4-82fb-7259b7003fb5" bitmap_id="7b06dbf2-0f37-4775-8cf6-b95e350262ec">
+      <text>
+        <locale_1033>Macro 02</locale_1033>
+      </text>
+      <tooltip>
+        <locale_1033>Display the RL of a given point</locale_1033>
+      </tooltip>
+      <button_text>
+        <locale_1033>Display the RL of a given point</locale_1033>
+      </button_text>
+      <script>! _-RunPythonScript (
+'''
+
+Copyright &lt;2021&gt; &lt;Thomas Chapman&gt;
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+'''
+
+
+# Show RL of specified point and copy to clipboard
+# By Thomas Chapman on 01/10/2021
+
+import rhinoscriptsyntax as rs
+import os
+
+point = rs.GetPoint('Select point')
+pointZ = point.Z
+
+if rs.UnitSystem() == 3: #if doc is in CM
+    pointZ = pointZ *0.01
+if rs.UnitSystem() == 2:#if doc is in MM
+     pointZ = pointZ *0.001
+
+rs.AddTextDot('+RL ' + str(round(pointZ,3)),point)
+
+#Copy RL to Clipboard
+
+RL = str(round(pointZ,3))
+
+rs.ClipboardText(RL)
+
+
+)</script>
+    </macro_item>
+    <macro_item guid="e76e7ea7-0d25-44a6-9ed3-43a85f3df8b0" bitmap_id="e44ae002-8838-4cd5-976b-3ca23f2ffeff">
+      <text>
+        <locale_1033>Macro 03</locale_1033>
+      </text>
+      <tooltip>
+        <locale_1033>Elevate a given object to a specified RL</locale_1033>
+      </tooltip>
+      <button_text>
+        <locale_1033>Elevate a given object to a specified RL</locale_1033>
+      </button_text>
+      <script>! _-RunPythonScript (
+'''
+
+Copyright &lt;2021&gt; &lt;Thomas Chapman&gt;
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+'''
+
+# MOVE OBJECT TO SPECIFIED RL
+# BY THOMAS CHAPMAN ON 01/10/2021
+
+import rhinoscriptsyntax as rs
+import Rhino.Geometry as geo
+
+obj = rs.GetObjects('Select objects',preselect=True)
+
+if obj:
+    current = rs.GetPoint('Select point')
+    
+    if current: 
+        rl = rs.GetString('RL to move to?')
+        rl = float(rl)
+        
+        if rs.UnitSystem() == 3: #if model is in cm scale by 100
+            rl = rl*100
+        elif rs.UnitSystem() == 2: #if model is in mm scale by 1000
+            rl = rl*1000
+        
+        if rl == 0.000: #move objects to the 0 coord
+            target3 = current.Z
+            if target3:
+                target3 = target3 *-1
+                target4 = geo.Point3d(0,0,target3)
+                rs.MoveObject(obj, target4)
+
+        elif rl &gt; 0.000:
+            target = rl - current.Z #+ or - number to target location
+            target2 = geo.Point3d(0,0,target) #translated vector needed to hit target
+            rs.MoveObject(obj, target2)
+)</script>
+    </macro_item>
+    <macro_item guid="4b67e1a0-373f-44d5-aa82-30382b12f599" bitmap_id="c590aa56-d692-479c-97ab-ae3379d66083">
+      <text>
+        <locale_1033>Macro 01</locale_1033>
+      </text>
+      <tooltip>
+        <locale_1033>Rotate blocks along their isertion point, Z oriented</locale_1033>
+      </tooltip>
+      <button_text>
+        <locale_1033>Rotate blocks along their isertion point, Z oriented</locale_1033>
+      </button_text>
+      <script>! _-RunPythonScript (
+'''
+
+Copyright &lt;2021&gt; &lt;Thomas Chapman&gt;
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+'''
+
+#RANDOM ROTATE BLOCK INSTANCES AROUND INSERTION POINT
+#BY THOMAS CHAPMAN ON 01/09/2021
+
+import rhinoscriptsyntax as rs
+import random as r
+
+vec = rs.VectorCreate([0,0,1],[0,0,0])
+obj = rs.GetObjects('pick Blocks to rotate randomly', filter=4096, preselect=True)
+
+rs.EnableRedraw(False)
+
+for object in obj:
+    num = r.randrange(-180,180)
+    point = rs.BlockInstanceInsertPoint(object)
+    rs.RotateObject(object, point, num, vec)
+
+rs.EnableRedraw(True)
+)</script>
+    </macro_item>
+    <macro_item guid="653f86bb-d8a8-4779-a37c-f7e9bac0ea13" bitmap_id="e7ab65e5-f772-4c22-bc8d-e7fa8e6c1d1f">
+      <text>
+        <locale_1033>Macro 04</locale_1033>
+      </text>
+      <tooltip>
+        <locale_1033>Drop objects to surface/mesh in Z</locale_1033>
+      </tooltip>
+      <button_text>
+        <locale_1033>Drop objects to surface/mesh in Z</locale_1033>
+      </button_text>
+      <script>! _-RunPythonScript (
+'''
+
+Copyright &lt;2021&gt; &lt;Thomas Chapman&gt;
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+'''
+
+#Drop objects to surface
+
+#By Thomas Chapman on 17/01/2021
+#24/04/2021 revision to capture most error messages
+
+import rhinoscriptsyntax as rs
+import itertools
+
+def main():
+
+    # prompt user for obj and surface
+    obj = rs.GetObjects('Pick objects',preselect=True,filter=(8+16+32+4096+1073741824))
+    surface = rs.GetObjects('Pick Surface/Mesh')
+    
+    #Check selects are valid
+    
+    if obj == None:
+        return
+    if surface == None:
+        return
+    
+    
+    meshCheck = rs.IsMesh(surface[0])
+    indexnum = []
+    surfacetypes = []
+    
+    
+    
+    #Check if mixed surface types
+    for thing in surface:
+        result = rs.IsMesh(thing)
+        surfacetypes.append(str(result))
+    
+    if ('True' in surfacetypes) and ('False' in surfacetypes):
+        print ('Please select only one surface type')
+        return
+    
+    
+    
+    #Turn off redraw to speed up script
+    rs.EnableRedraw(False)
+    
+    # Generate bounding box around obj and find distance between obj and surface
+    for objects in obj:
+        ptlist = []
+    
+        # Get bounding box and make a square on lower half and find centroid
+        bounds = rs.BoundingBox(objects)
+        pl = rs.AddPolyline((bounds[0:4]+[bounds[0]]))
+        centroid = rs.CurveAreaCentroid(pl)
+    
+        # Add three points at the centroid and move them in both z direction
+        pt00 = rs.AddPoint(centroid[0])
+        pt000 = rs.AddPoint(centroid[0])
+        lowpoint = rs.AddPoint(centroid[0])
+        pt01 = rs.MoveObject(pt00, (0,0,100000))
+        pt02 = rs.MoveObject(pt000, (0,0,-100000))
+    
+        #Check if Mesh else use nurb instersect
+        if meshCheck is True:
+            curve = rs.AddCurve((pt01, pt02))
+            for plane in surface:
+                intersection = rs.CurveMeshIntersection(curve, plane)
+                if intersection is None:
+                    continue
+                ptlist.append(list(filter(None,intersection)))
+            merged = list(itertools.chain(*ptlist))
+            merged = list(itertools.chain(*merged))
+    
+        # Create curve to intersect with surface to find distance from obj
+        elif meshCheck is False:
+            curve = rs.AddCurve((pt01, pt02))
+            for plane in surface:
+                intersection = rs.CurveBrepIntersect(curve, plane)
+                if intersection is None:
+                    continue
+                ptlist.append(list(filter(None,intersection)))
+            merged = list(itertools.chain(*ptlist))
+            merged = list(itertools.chain(*merged))
+    
+        if merged is not None and merged != []:
+            # Find the highest Z value and use that to target
+            sorted = rs.SortPoints((rs.coerce3dpointlist(merged)), ascending=False, order=4)
+            inter = (sorted[0])
+            dist = rs.Distance(lowpoint, inter)
+    
+            # Convert Guid to point list
+            intCon = rs.coerce3dpoint(inter)
+            lowCon = rs.coerce3dpoint(lowpoint)
+    
+            # Find if obj is below or above surface and change dist to + or - accordingly
+            if lowCon[2] &lt; intCon[2]:
+                distCon = abs(dist)
+            if lowCon[2] &gt; intCon[2]:
+                distCon = (dist)*-1
+            elif lowCon[2] == intCon[2]:
+                rs.DeleteObjects([curve, pt01, pt02, pl, lowpoint]+merged)
+                continue
+    
+            # Move obj to intersection
+            rs.MoveObject(objects, (0,0,distCon))
+    
+            #deleate construction geo
+            try:
+               rs.DeleteObjects([curve, pt01, pt02, pl, lowpoint]+merged)
+            except:
+                continue
+    
+    
+    
+            #Clear list values for second run through loop
+            del intersection
+            del merged
+            del ptlist
+    
+    
+    
+    #delete any polysurfaces created
+    if isinstance(indexnum, int):
+        rs.DeleteObjects(surface[indexnum])
+    
+    # Enable redraw to show results
+    rs.EnableRedraw(True)
+
+
+main()
+)</script>
+    </macro_item>
+    <macro_item guid="d5a1b6a2-dd5f-44bf-b366-59b113417446" bitmap_id="9c341c8d-cab8-4c2f-99ce-b21684c641aa">
+      <text>
+        <locale_1033>Macro</locale_1033>
+      </text>
+      <tooltip>
+        <locale_1033>Draw Aus DDA standard ramps</locale_1033>
+      </tooltip>
+      <button_text>
+        <locale_1033>Draw Aus DDA standard ramps</locale_1033>
+      </button_text>
+      <script>! _-RunPythonScript (
+'''
+
+Copyright &lt;2021&gt; &lt;Thomas Chapman&gt;
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+'''
+
+#Model Standard Australian DDA Ramps
+
+import rhinoscriptsyntax as rs
+import math as m
+
+
+if rs.UnitSystem() == 4: #if doc is in M
+    Mult = 1
+if rs.UnitSystem() == 3: #if doc is in CM
+    Mult = 100
+if rs.UnitSystem() == 2:#if doc is in MM
+    Mult = 1000
+
+
+
+pt01 = rs.GetPoint('Pick insertion point')
+RampOptions = 'Step Ramp', 'Kerb Ramp', 'Ramp', 'Walkway'
+RampType = rs.PopupMenu(RampOptions)
+
+rs.EnableRedraw(False)
+
+
+if RampType == -1:
+    exit()
+
+if RampType == 0: #Step Ramp
+    Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(0.190*Mult)),((pt01.X+1.9*Mult),pt01.Y,pt01.Z),(pt01)])
+    Surface = rs.ExtrudeCurveStraight(Curve,(pt01),(pt01.X,(pt01.Y+1*Mult),pt01.Z))
+    rs.CapPlanarHoles(Surface)
+    rs.DeleteObject(Curve)
+
+if RampType == 1: #Kerb Ramp
+#main ramp portion
+    Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(0.190*Mult)),((pt01.X+1.52*Mult),pt01.Y,pt01.Z),(pt01)])
+    Surface = rs.ExtrudeCurveStraight(Curve,(pt01),(pt01.X,(pt01.Y+1*Mult),pt01.Z))
+    rs.CapPlanarHoles(Surface)
+    rs.DeleteObject(Curve)
+
+if RampType == 2: #Ramp
+    Grade = '1:19','1:18','1:17','1:16','1:15','1:14'
+    Index = rs.PopupMenu(Grade)
+    GradeNum = [19,18,17,16,15,14]
+    if Index == 5:
+        Rise = 9/(GradeNum[Index])
+        Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(Rise*Mult)),((pt01.X+9*Mult),pt01.Y,pt01.Z),(pt01)])
+        Surface = rs.ExtrudeCurveStraight(Curve,(pt01),(pt01.X,(pt01.Y+1*Mult),pt01.Z))
+        rs.CapPlanarHoles(Surface)
+        rs.DeleteObject(Curve)
+    elif Index != 5:
+        Rise = 15/(GradeNum[Index])
+        Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(Rise*Mult)),((pt01.X+15*Mult),pt01.Y,pt01.Z),(pt01)])
+        Surface = rs.ExtrudeCurveStraight(Curve,(pt01),(pt01.X,(pt01.Y+1*Mult),pt01.Z))
+        rs.CapPlanarHoles(Surface)
+        rs.DeleteObject(Curve)
+
+if RampType == 3: #Walkway
+    Grade = '1:33','1:32','1:31','1:30','1:29','1:28','1:27','1:26','1:25','1:24','1:23','1:22','1:21','1:20'
+    Index = rs.PopupMenu(Grade)
+    GradeNum = [33,32,31,30,29,28,27,26,25,24,23,22,21,20]
+    if Index == 0:
+        Rise = 25/(GradeNum[Index])
+        Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(Rise*Mult)),((pt01.X+25*Mult),pt01.Y,pt01.Z),(pt01)])
+        Surface = rs.ExtrudeCurveStraight(Curve,(pt01),(pt01.X,(pt01.Y+1*Mult),pt01.Z))
+        rs.CapPlanarHoles(Surface)
+        rs.DeleteObject(Curve)
+    if Index == 13:
+        Rise = 15/(GradeNum[Index])
+        Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(Rise*Mult)),((pt01.X+15*Mult),pt01.Y,pt01.Z),(pt01)])
+        Surface = rs.ExtrudeCurveStraight(Curve,(pt01),(pt01.X,(pt01.Y+1*Mult),pt01.Z))
+        rs.CapPlanarHoles(Surface)
+        rs.DeleteObject(Curve)
+    elif Index != 0 or Index != 13:
+        Interp = m.floor((( GradeNum[Index] - 20)*(25 - 15)/(33 - 20))+15) #Linear interpolation of landing distance - DDA requirement...Srsly?
+        Rise = Interp/(GradeNum[Index])
+        Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(Rise*Mult)),((pt01.X+Interp*Mult),pt01.Y,pt01.Z),(pt01)])
+        Surface = rs.ExtrudeCurveStraight(Curve,(pt01),(pt01.X,(pt01.Y+1*Mult),pt01.Z))
+        rs.CapPlanarHoles(Surface)
+        rs.DeleteObject(Curve)
+
+rs.EnableRedraw(True)
+)</script>
+    </macro_item>
+    <macro_item guid="1581c648-c6a9-472c-a4df-21de69dd9d67" bitmap_id="8530d493-afea-4e64-8236-a83bb2807fe2">
+      <text>
+        <locale_1033>Macro 05</locale_1033>
+      </text>
+      <tooltip>
+        <locale_1033>Patch Individual closed polylines</locale_1033>
+      </tooltip>
+      <button_text>
+        <locale_1033>Patch Individual closed polylines</locale_1033>
+      </button_text>
+      <script>! _-RunPythonScript (
+'''
+
+Copyright &lt;2021&gt; &lt;Thomas Chapman&gt;
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+'''
+
+#Patch Multiple Individual closed polylines
+#By Thomas Chapman 04/22/2021
+
+import rhinoscriptsyntax as rs
+
+geo = rs.GetObjects('Select Closed Polylines',preselect=True)
+
+uv1 = rs.GetInteger('enter number of UV divisions',number=1,minimum=1)
+
+rs.EnableRedraw(False)
+for objects in geo:
+    rs.AddPatch((objects),(uv1,uv1))
+rs.EnableRedraw(True)
+
+)</script>
+    </macro_item>
+    <macro_item guid="b1e8b7d5-35eb-4e09-b40d-1ca5c016c284" bitmap_id="3edf817e-9a97-4d3b-ad86-07e5bc3c8ead">
+      <text>
+        <locale_1033>Macro 06</locale_1033>
+      </text>
+      <tooltip>
+        <locale_1033>Isolate Layer</locale_1033>
+      </tooltip>
+      <button_text>
+        <locale_1033>Isolate Layer</locale_1033>
+      </button_text>
+      <script>! _-RunPythonScript (
+'''
+
+Copyright &lt;2021&gt; &lt;Thomas Chapman&gt;
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+'''
+
+import rhinoscriptsyntax as rs
+
+# Get object and find layer it is on
+obj = rs.GetObjects('select an object on the layer to isolate',preselect=True)
+
+rs.EnableRedraw(False)
+
+# Create list of selected obj layers
+selectedlayers = []
+for i in obj:
+    layer = rs.ObjectLayer(i)
+    selectedlayers.append(layer)
+
+# Select all objects on each layer
+
+for i in selectedlayers:
+    rs.ObjectsByLayer(i,True)
+isolate = rs.SelectedObjects()
+
+allObjects = rs.AllObjects()
+
+for i in isolate:
+    allObjects.remove(i)
+
+# Hide selected objects
+
+rs.HideObjects(allObjects)
+
+rs.UnselectAllObjects()
+
+rs.EnableRedraw(True)
+)</script>
+    </macro_item>
+    <macro_item guid="15802b3c-73a7-4a79-9623-87e3d964e6b6" bitmap_id="f5b1b5ee-555a-4a82-9442-1f1a7e8f08b9">
+      <text>
+        <locale_1033>Macro 07</locale_1033>
+      </text>
+      <tooltip>
+        <locale_1033>Unisolate Layer</locale_1033>
+      </tooltip>
+      <button_text>
+        <locale_1033>Unisolate Layer</locale_1033>
+      </button_text>
+      <script>! _-RunPythonScript (
+'''
+
+Copyright &lt;2021&gt; &lt;Thomas Chapman&gt;
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+'''
+
+#Unisolate All objects
+#By Thomas Chapman 21/05/01
+
+import rhinoscriptsyntax as rs
+
+obj = rs.HiddenObjects()
+
+rs.ShowObjects(obj)
+)</script>
+    </macro_item>
+  </macros>
+  <bitmaps>
+    <small_bitmap item_width="16" item_height="16">
+      <bitmap_item guid="2216bb3c-41b0-4cdf-85c7-2063576e4934" index="0" />
+      <bitmap_item guid="7b06dbf2-0f37-4775-8cf6-b95e350262ec" index="1" />
+      <bitmap_item guid="e44ae002-8838-4cd5-976b-3ca23f2ffeff" index="2" />
+      <bitmap_item guid="c590aa56-d692-479c-97ab-ae3379d66083" index="3" />
+      <bitmap_item guid="e7ab65e5-f772-4c22-bc8d-e7fa8e6c1d1f" index="4" />
+      <bitmap_item guid="533ba74d-f27a-4b1c-9147-3c4708a9e5f3" index="5" />
+      <bitmap_item guid="9c341c8d-cab8-4c2f-99ce-b21684c641aa" index="6" />
+      <bitmap_item guid="8530d493-afea-4e64-8236-a83bb2807fe2" index="7" />
+      <bitmap_item guid="3edf817e-9a97-4d3b-ad86-07e5bc3c8ead" index="8" />
+      <bitmap_item guid="f5b1b5ee-555a-4a82-9442-1f1a7e8f08b9" index="9" />
+      <bitmap>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</bitmap>
+    </small_bitmap>
+    <normal_bitmap item_width="24" item_height="24">
+      <bitmap_item guid="2216bb3c-41b0-4cdf-85c7-2063576e4934" index="0" />
+      <bitmap_item guid="7b06dbf2-0f37-4775-8cf6-b95e350262ec" index="1" />
+      <bitmap_item guid="e44ae002-8838-4cd5-976b-3ca23f2ffeff" index="2" />
+      <bitmap_item guid="c590aa56-d692-479c-97ab-ae3379d66083" index="3" />
+      <bitmap_item guid="e7ab65e5-f772-4c22-bc8d-e7fa8e6c1d1f" index="4" />
+      <bitmap_item guid="533ba74d-f27a-4b1c-9147-3c4708a9e5f3" index="5" />
+      <bitmap_item guid="9c341c8d-cab8-4c2f-99ce-b21684c641aa" index="6" />
+      <bitmap_item guid="8530d493-afea-4e64-8236-a83bb2807fe2" index="7" />
+      <bitmap_item guid="3edf817e-9a97-4d3b-ad86-07e5bc3c8ead" index="8" />
+      <bitmap_item guid="f5b1b5ee-555a-4a82-9442-1f1a7e8f08b9" index="9" />
+      <bitmap>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</bitmap>
+    </normal_bitmap>
+    <large_bitmap item_width="32" item_height="32">
+      <bitmap_item guid="2216bb3c-41b0-4cdf-85c7-2063576e4934" index="0" />
+      <bitmap_item guid="7b06dbf2-0f37-4775-8cf6-b95e350262ec" index="1" />
+      <bitmap_item guid="e44ae002-8838-4cd5-976b-3ca23f2ffeff" index="2" />
+      <bitmap_item guid="c590aa56-d692-479c-97ab-ae3379d66083" index="3" />
+      <bitmap_item guid="e7ab65e5-f772-4c22-bc8d-e7fa8e6c1d1f" index="4" />
+      <bitmap_item guid="533ba74d-f27a-4b1c-9147-3c4708a9e5f3" index="5" />
+      <bitmap_item guid="9c341c8d-cab8-4c2f-99ce-b21684c641aa" index="6" />
+      <bitmap_item guid="8530d493-afea-4e64-8236-a83bb2807fe2" index="7" />
+      <bitmap_item guid="3edf817e-9a97-4d3b-ad86-07e5bc3c8ead" index="8" />
+      <bitmap_item guid="f5b1b5ee-555a-4a82-9442-1f1a7e8f08b9" index="9" />
+      <bitmap>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</bitmap>
+    </large_bitmap>
+  </bitmaps>
+  <scripts />
+</RhinoUI>
