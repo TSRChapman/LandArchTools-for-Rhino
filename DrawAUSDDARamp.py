@@ -24,7 +24,8 @@ if rs.UnitSystem() == 2:#if doc is in MM
 
 
 
-pt01 = rs.GetPoint('Pick insertion point')
+pt00 = rs.GetPoint('Pick insertion point')
+pt01 = rs.CreatePoint(pt00.X,pt00.Y)
 RampOptions = 'Step Ramp', 'Kerb Ramp', 'Ramp', 'Walkway'
 RampType = rs.PopupMenu(RampOptions)
 
