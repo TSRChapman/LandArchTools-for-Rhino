@@ -9,7 +9,7 @@
   </extend_rhino_menus>
   <menus />
   <tool_bar_groups>
-    <tool_bar_group guid="610cd420-2a2b-4b19-8264-5be4c3de81b0" dock_bar_guid32="00000000-0000-0000-0000-000000000000" dock_bar_guid64="b31f03b3-0481-4a57-bc4b-fd730b53639b" active_tool_bar_group="6907acd4-2802-4c69-bb33-4b9e88e311ac" single_file="False" hide_single_tab="False" point_floating="1332,350">
+    <tool_bar_group guid="610cd420-2a2b-4b19-8264-5be4c3de81b0" dock_bar_guid32="00000000-0000-0000-0000-000000000000" dock_bar_guid64="b31f03b3-0481-4a57-bc4b-fd730b53639b" active_tool_bar_group="6907acd4-2802-4c69-bb33-4b9e88e311ac" single_file="False" hide_single_tab="False" point_floating="1829,371">
       <text>
         <locale_1033>LandArch Tools</locale_1033>
       </text>
@@ -19,7 +19,7 @@
         </text>
         <tool_bar_id>69b13ca2-e1a4-4e0c-94a5-019b137651fb</tool_bar_id>
       </tool_bar_group_item>
-      <dock_bar_info dpi_scale="100" dock_bar="False" docking="True" horz="False" visible="True" floating="True" mru_float_style="8192" bar_id="59487" mru_width="868" point_pos="-2,-2" float_point="1332,350" rect_mru_dock_pos="0,0,0,0" dock_location_u="59419" dock_location="top" float_size="357,62" />
+      <dock_bar_info dpi_scale="100" dock_bar="False" docking="True" horz="False" visible="True" floating="True" mru_float_style="8192" bar_id="59487" mru_width="868" point_pos="-2,-2" float_point="1829,371" rect_mru_dock_pos="0,0,0,0" dock_location_u="59419" dock_location="top" float_size="357,62" />
     </tool_bar_group>
   </tool_bar_groups>
   <tool_bars>
@@ -440,14 +440,11 @@ main()
       </button_text>
       <script>! _-RunPythonScript (
 '''
-
 Copyright &lt;2021&gt; &lt;Thomas Chapman&gt;
-
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
 WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
 '''
 
 #Model Standard Australian DDA Ramps
@@ -465,7 +462,8 @@ if rs.UnitSystem() == 2:#if doc is in MM
 
 
 
-pt01 = rs.GetPoint('Pick insertion point')
+pt00 = rs.GetPoint('Pick insertion point')
+pt01 = rs.CreatePoint(pt00.X,pt00.Y)
 RampOptions = 'Step Ramp', 'Kerb Ramp', 'Ramp', 'Walkway'
 RampType = rs.PopupMenu(RampOptions)
 
