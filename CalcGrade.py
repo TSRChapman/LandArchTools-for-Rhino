@@ -1,3 +1,4 @@
+
 '''
 
 Copyright <2021> <Thomas Chapman>
@@ -50,6 +51,6 @@ except ZeroDivisionError:
 curve = rs.AddCurve([pt1,pt2])
 midpoint = rs.CurveMidPoint(curve)
 rs.DeleteObject(curve)
-rs.AddTextDot('1:' + str(abs(m.trunc(grade))),midpoint)
+rs.AddTextDot('1:' + str(abs(round(grade,2))),midpoint)
 
 rs.EnableRedraw(True)
