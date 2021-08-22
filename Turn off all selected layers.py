@@ -13,10 +13,12 @@ import rhinoscriptsyntax as rs
 
 obj = rs.GetObjects("select obj Layers to turn off")
 
-rs.EnableRedraw(False)
+if obj:
 
-for i in obj:
-    layer = rs.ObjectLayer(i)
-    rs.LayerVisible(layer, visible=False)
+    rs.EnableRedraw(False)
 
-rs.EnableRedraw(True)
+    for i in obj:
+        layer = rs.ObjectLayer(i)
+        rs.LayerVisible(layer, visible=False)
+
+    rs.EnableRedraw(True)

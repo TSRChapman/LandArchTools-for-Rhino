@@ -16,9 +16,11 @@ import rhinoscriptsyntax as rs
 
 geo = rs.GetObjects('Select Closed Polylines',preselect=True)
 
-uv1 = rs.GetInteger('enter number of UV divisions',number=1,minimum=1)
+if geo:
+    
+    uv1 = rs.GetInteger('enter number of UV divisions',number=1,minimum=1)
 
-rs.EnableRedraw(False)
-for objects in geo:
-    rs.AddPatch((objects),(uv1,uv1))
-rs.EnableRedraw(True)
+    rs.EnableRedraw(False)
+    for objects in geo:
+        rs.AddPatch((objects),(uv1,uv1))
+    rs.EnableRedraw(True)

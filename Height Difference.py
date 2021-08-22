@@ -14,12 +14,14 @@ import rhinoscriptsyntax as rs
 pt01 = rs.GetPoint('Select first point to measure from')
 pt02 = rs.GetPoint('Select second point to measure to')
 
-pt01Z = pt01.Z
-pt02Z = pt02.Z
+if pt02:
 
-height = abs(pt01Z-pt02Z)
-height = round(height, 3)
+    pt01Z = pt01.Z
+    pt02Z = pt02.Z
 
-rs.ClipboardText(height)
+    height = abs(pt01Z-pt02Z)
+    height = round(height, 3)
 
-rs.MessageBox(height, buttons=0, title="Height difference - Value copied to clipboard")
+    rs.ClipboardText(height)
+
+    rs.MessageBox(height, buttons=0, title="Height difference - Value copied to clipboard")

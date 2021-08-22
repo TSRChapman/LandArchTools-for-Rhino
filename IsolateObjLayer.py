@@ -14,29 +14,32 @@ import rhinoscriptsyntax as rs
 # Get object and find layer it is on
 obj = rs.GetObjects('select an object on the layer to isolate',preselect=True)
 
-rs.EnableRedraw(False)
+if obj:
 
-# Create list of selected obj layers
-selectedlayers = []
-for i in obj:
-    layer = rs.ObjectLayer(i)
-    selectedlayers.append(layer)
 
-# Select all objects on each layer
+    rs.EnableRedraw(False)
 
-for i in selectedlayers:
-    rs.ObjectsByLayer(i,True)
-isolate = rs.SelectedObjects()
+    # Create list of selected obj layers
+    selectedlayers = []
+    for i in obj:
+        layer = rs.ObjectLayer(i)
+        selectedlayers.append(layer)
 
-allObjects = rs.AllObjects()
+    # Select all objects on each layer
 
-for i in isolate:
-    allObjects.remove(i)
+    for i in selectedlayers:
+        rs.ObjectsByLayer(i,True)
+    isolate = rs.SelectedObjects()
 
-# Hide selected objects
+    allObjects = rs.AllObjects()
 
-rs.HideObjects(allObjects)
+    for i in isolate:
+        allObjects.remove(i)
 
-rs.UnselectAllObjects()
+    # Hide selected objects
 
-rs.EnableRedraw(True)
+    rs.HideObjects(allObjects)
+
+    rs.UnselectAllObjects()
+
+    rs.EnableRedraw(True)

@@ -19,38 +19,41 @@ import math as m
 # Get points from user
 pt1 = rs.GetPoint('Pick the first point')
 pt2 = rs.GetPoint('Pick the second point')
-hypotenuse = rs.Distance(pt1, pt2)
-
-rs.EnableRedraw(False)
 
 
-# Find the rise of given points in any order
-if pt1.Z > pt2.Z:
-    rise = pt1.Z - pt2.Z
-elif pt1.Z < pt2.Z:
-    rise = pt2.Z - pt1.Z
+if pt2:
+    hypotenuse = rs.Distance(pt1, pt2)
 
-# Find the run of given points
-run = m.sqrt(hypotenuse**2 - rise**2)
+    rs.EnableRedraw(False)
 
-# Detect model units and scale to mm, if mm do nothing
-if rs.UnitSystem == 3:
-    rise = rise*100
-if rs.UnitSystem == 4:
-    rise = rise*1000
 
-# Calculate grade based on rise and run
-try:
-    grade = run / rise
+    # Find the rise of given points in any order
+    if pt1.Z > pt2.Z:
+        rise = pt1.Z - pt2.Z
+    elif pt1.Z < pt2.Z:
+        rise = pt2.Z - pt1.Z
 
-except ZeroDivisionError:
-    print('No Grade Found')
-    exit()
+    # Find the run of given points
+    run = m.sqrt(hypotenuse**2 - rise**2)
 
-# Print text dot to screen
-curve = rs.AddCurve([pt1,pt2])
-midpoint = rs.CurveMidPoint(curve)
-rs.DeleteObject(curve)
-rs.AddTextDot('1:' + str(abs(round(grade,2))),midpoint)
+    # Detect model units and scale to mm, if mm do nothing
+    if rs.UnitSystem == 3:
+        rise = rise*100
+    if rs.UnitSystem == 4:
+        rise = rise*1000
 
-rs.EnableRedraw(True)
+    # Calculate grade based on rise and run
+    try:
+        grade = run / rise
+
+    except ZeroDivisionError:
+        print('No Grade Found')
+        exit()
+
+    # Print text dot to screen
+    curve = rs.AddCurve([pt1,pt2])
+    midpoint = rs.CurveMidPoint(curve)
+    rs.DeleteObject(curve)
+    rs.AddTextDot('1:' + str(abs(round(grade,2))),midpoint)
+
+    rs.EnableRedraw(True)

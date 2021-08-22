@@ -17,6 +17,8 @@ import random as r
 
 #Add Layers to document
 
+rs.EnableRedraw(False)
+
 layerList = [
 "L_BLDS", 
 "L_BNDY_WRKS", 
@@ -26,7 +28,10 @@ layerList = [
 "L_HARD_STEP",
 "L_HARD_RAMP",
 "L_HARD_FNCE",
-"L_HARD_PAVE",
+"L_HARD_PAV1",
+"L_HARD_PAV2",
+"L_HARD_PAV3",
+"L_HARD_PAV4",
 "L_LGHT",
 "L_ENTO",
 "L_PLAY_EQUI",
@@ -40,7 +45,10 @@ layerList = [
 "L_SOFT_GRDN",
 "L_SOFT_MLCH",
 "L_SOFT_LAWN",
-"L_FURN"
+"L_SOFT_PLANT",
+"L_FURN",
+"_L_OFF"
+
 
 ]
 
@@ -52,3 +60,5 @@ parentLayer = rs.AddLayer(name="LANDSCAPE", color=None, visible=True, locked=Fal
 
 for layer in layerList:
     rs.AddLayer(layer,(r.randrange(255),r.randrange(255),r.randrange(255)),visible=True, locked=False, parent= parentLayer)
+
+rs.EnableRedraw(True)

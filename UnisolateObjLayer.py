@@ -16,4 +16,6 @@ import rhinoscriptsyntax as rs
 
 obj = rs.HiddenObjects()
 
-rs.ShowObjects(obj)
+if obj:
+
+    rs.ShowObjects(obj)

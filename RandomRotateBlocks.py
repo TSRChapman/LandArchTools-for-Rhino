@@ -18,11 +18,12 @@ import random as r
 vec = rs.VectorCreate([0,0,1],[0,0,0])
 obj = rs.GetObjects('pick Blocks to rotate randomly', filter=4096, preselect=True)
 
-rs.EnableRedraw(False)
+if obj:
+    rs.EnableRedraw(False)
 
-for object in obj:
-    num = r.randrange(-180,180)
-    point = rs.BlockInstanceInsertPoint(object)
-    rs.RotateObject(object, point, num, vec)
+    for object in obj:
+        num = r.randrange(-180,180)
+        point = rs.BlockInstanceInsertPoint(object)
+        rs.RotateObject(object, point, num, vec)
 
-rs.EnableRedraw(True)
+    rs.EnableRedraw(True)

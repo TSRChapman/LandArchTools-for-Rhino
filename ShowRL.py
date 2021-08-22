@@ -17,18 +17,20 @@ import rhinoscriptsyntax as rs
 import os
 
 point = rs.GetPoint('Select point')
-pointZ = point.Z
 
-if rs.UnitSystem() == 3: #if doc is in CM
-    pointZ = pointZ *0.01
-if rs.UnitSystem() == 2:#if doc is in MM
-     pointZ = pointZ *0.001
+if point:
+    pointZ = point.Z
 
-rs.AddTextDot('+RL ' + str(round(pointZ,3)),point)
+    if rs.UnitSystem() == 3: #if doc is in CM
+        pointZ = pointZ *0.01
+    if rs.UnitSystem() == 2:#if doc is in MM
+         pointZ = pointZ *0.001
 
-#Copy RL to Clipboard
+    rs.AddTextDot('+RL ' + str(round(pointZ,3)),point)
 
-RL = str(round(pointZ,3))
+    #Copy RL to Clipboard
 
-rs.ClipboardText(RL)
+    RL = str(round(pointZ,3))
+
+    rs.ClipboardText(RL)
 

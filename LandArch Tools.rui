@@ -9,7 +9,7 @@
   </extend_rhino_menus>
   <menus />
   <tool_bar_groups>
-    <tool_bar_group guid="4830f6fe-5b84-4155-9c85-a8ae8942b65e" dock_bar_guid32="00000000-0000-0000-0000-000000000000" dock_bar_guid64="92d659a2-6f79-4f2b-8ba6-2670971a2e86" active_tool_bar_group="c0ddb15f-03f5-4dff-86f7-7745ab4674f7" single_file="False" hide_single_tab="True" point_floating="714,441">
+    <tool_bar_group guid="4830f6fe-5b84-4155-9c85-a8ae8942b65e" dock_bar_guid32="00000000-0000-0000-0000-000000000000" dock_bar_guid64="92d659a2-6f79-4f2b-8ba6-2670971a2e86" active_tool_bar_group="c0ddb15f-03f5-4dff-86f7-7745ab4674f7" single_file="False" hide_single_tab="True" point_floating="672,578">
       <text>
         <locale_1033>LandArch Tools</locale_1033>
       </text>
@@ -19,7 +19,7 @@
         </text>
         <tool_bar_id>d8dc19cb-56d8-4f50-b015-76d6b2e6fb1f</tool_bar_id>
       </tool_bar_group_item>
-      <dock_bar_info dpi_scale="100" dock_bar="False" docking="True" horz="False" visible="True" floating="True" mru_float_style="8192" bar_id="59476" mru_width="868" point_pos="-2,-2" float_point="714,441" rect_mru_dock_pos="0,529,64,966" dock_location_u="59420" dock_location="left" float_size="462,62" />
+      <dock_bar_info dpi_scale="100" dock_bar="False" docking="True" horz="False" visible="True" floating="True" mru_float_style="8192" bar_id="59471" mru_width="868" point_pos="-2,-2" float_point="672,578" rect_mru_dock_pos="0,529,64,966" dock_location_u="59420" dock_location="left" float_size="462,62" />
     </tool_bar_group>
   </tool_bar_groups>
   <tool_bars>
@@ -110,41 +110,44 @@ import math as m
 # Get points from user
 pt1 = rs.GetPoint('Pick the first point')
 pt2 = rs.GetPoint('Pick the second point')
-hypotenuse = rs.Distance(pt1, pt2)
-
-rs.EnableRedraw(False)
 
 
-# Find the rise of given points in any order
-if pt1.Z &gt; pt2.Z:
-    rise = pt1.Z - pt2.Z
-elif pt1.Z &lt; pt2.Z:
-    rise = pt2.Z - pt1.Z
+if pt2:
+    hypotenuse = rs.Distance(pt1, pt2)
 
-# Find the run of given points
-run = m.sqrt(hypotenuse**2 - rise**2)
+    rs.EnableRedraw(False)
 
-# Detect model units and scale to mm, if mm do nothing
-if rs.UnitSystem == 3:
-    rise = rise*100
-if rs.UnitSystem == 4:
-    rise = rise*1000
 
-# Calculate grade based on rise and run
-try:
-    grade = run / rise
+    # Find the rise of given points in any order
+    if pt1.Z &gt; pt2.Z:
+        rise = pt1.Z - pt2.Z
+    elif pt1.Z &lt; pt2.Z:
+        rise = pt2.Z - pt1.Z
 
-except ZeroDivisionError:
-    print('No Grade Found')
-    exit()
+    # Find the run of given points
+    run = m.sqrt(hypotenuse**2 - rise**2)
 
-# Print text dot to screen
-curve = rs.AddCurve([pt1,pt2])
-midpoint = rs.CurveMidPoint(curve)
-rs.DeleteObject(curve)
-rs.AddTextDot('1:' + str(abs(round(grade,2))),midpoint)
+    # Detect model units and scale to mm, if mm do nothing
+    if rs.UnitSystem == 3:
+        rise = rise*100
+    if rs.UnitSystem == 4:
+        rise = rise*1000
 
-rs.EnableRedraw(True)
+    # Calculate grade based on rise and run
+    try:
+        grade = run / rise
+
+    except ZeroDivisionError:
+        print('No Grade Found')
+        exit()
+
+    # Print text dot to screen
+    curve = rs.AddCurve([pt1,pt2])
+    midpoint = rs.CurveMidPoint(curve)
+    rs.DeleteObject(curve)
+    rs.AddTextDot('1:' + str(abs(round(grade,2))),midpoint)
+
+    rs.EnableRedraw(True)
 
 )</script>
     </macro_item>
@@ -178,20 +181,22 @@ import rhinoscriptsyntax as rs
 import os
 
 point = rs.GetPoint('Select point')
-pointZ = point.Z
 
-if rs.UnitSystem() == 3: #if doc is in CM
-    pointZ = pointZ *0.01
-if rs.UnitSystem() == 2:#if doc is in MM
-     pointZ = pointZ *0.001
+if point:
+    pointZ = point.Z
 
-rs.AddTextDot('+RL ' + str(round(pointZ,3)),point)
+    if rs.UnitSystem() == 3: #if doc is in CM
+        pointZ = pointZ *0.01
+    if rs.UnitSystem() == 2:#if doc is in MM
+         pointZ = pointZ *0.001
 
-#Copy RL to Clipboard
+    rs.AddTextDot('+RL ' + str(round(pointZ,3)),point)
 
-RL = str(round(pointZ,3))
+    #Copy RL to Clipboard
 
-rs.ClipboardText(RL)
+    RL = str(round(pointZ,3))
+
+    rs.ClipboardText(RL)
 
 
 )</script>
@@ -282,14 +287,15 @@ import random as r
 vec = rs.VectorCreate([0,0,1],[0,0,0])
 obj = rs.GetObjects('pick Blocks to rotate randomly', filter=4096, preselect=True)
 
-rs.EnableRedraw(False)
+if obj:
+    rs.EnableRedraw(False)
 
-for object in obj:
-    num = r.randrange(-180,180)
-    point = rs.BlockInstanceInsertPoint(object)
-    rs.RotateObject(object, point, num, vec)
+    for object in obj:
+        num = r.randrange(-180,180)
+        point = rs.BlockInstanceInsertPoint(object)
+        rs.RotateObject(object, point, num, vec)
 
-rs.EnableRedraw(True)
+    rs.EnableRedraw(True)
 )</script>
     </macro_item>
     <macro_item guid="5a023420-191b-433d-9347-d6221ccc57d3" bitmap_id="f3c1fd4a-470f-412b-98a3-4374e134c963">
@@ -303,6 +309,7 @@ rs.EnableRedraw(True)
         <locale_1033>Random Drop Block</locale_1033>
       </button_text>
       <script>! _-RunPythonScript (
+
 '''
 
 Copyright &lt;2021&gt; &lt;Thomas Chapman&gt;
@@ -321,17 +328,18 @@ import random as r
 obj = rs.GetObjects('Pick blocks to drop randomly', filter=4096, preselect=True)
 dropnum = rs.GetReal("Enter max drop distance")
 
+if obj:
+    rs.EnableRedraw(False)
 
-rs.EnableRedraw(False)
+    for object in obj:
+        num = r.uniform((-abs(dropnum)),0)
+        print num
+        vec = rs.VectorCreate([0,0,num],[0,0,0])
+        point = rs.BlockInstanceInsertPoint(object)
+        rs.MoveObject(object,vec)
 
-for object in obj:
-    num = r.uniform((-abs(dropnum)),0)
-    print num
-    vec = rs.VectorCreate([0,0,num],[0,0,0])
-    point = rs.BlockInstanceInsertPoint(object)
-    rs.MoveObject(object,vec)
+    rs.EnableRedraw(True)
 
-rs.EnableRedraw(True)
 )</script>
     </macro_item>
     <macro_item guid="d1ca3149-4600-4d59-891a-116db286a114" bitmap_id="dd2745d9-c95b-4c6c-9b58-be8e9cb1be24">
@@ -496,11 +504,14 @@ main()
       </button_text>
       <script>! _-RunPythonScript (
 '''
+
 Copyright &lt;2021&gt; &lt;Thomas Chapman&gt;
+
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
 WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 '''
 
 #Model Standard Australian DDA Ramps
@@ -519,71 +530,76 @@ if rs.UnitSystem() == 2:#if doc is in MM
 
 
 pt00 = rs.GetPoint('Pick insertion point')
-pt01 = rs.CreatePoint(pt00.X,pt00.Y)
-RampOptions = 'Step Ramp', 'Kerb Ramp', 'Ramp', 'Walkway'
-RampType = rs.PopupMenu(RampOptions)
 
-rs.EnableRedraw(False)
+if pt00:
 
 
-if RampType == -1:
-    exit()
+    pt01 = rs.CreatePoint(pt00.X,pt00.Y)
+    RampOptions = 'Step Ramp', 'Kerb Ramp', 'Ramp', 'Walkway'
+    RampType = rs.PopupMenu(RampOptions)
 
-if RampType == 0: #Step Ramp
-    Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(0.190*Mult)),((pt01.X+1.9*Mult),pt01.Y,pt01.Z),(pt01)])
-    Surface = rs.ExtrudeCurveStraight(Curve,(pt01),(pt01.X,(pt01.Y+1*Mult),pt01.Z))
-    rs.CapPlanarHoles(Surface)
-    rs.DeleteObject(Curve)
+    rs.EnableRedraw(False)
 
-if RampType == 1: #Kerb Ramp
-#main ramp portion
-    Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(0.190*Mult)),((pt01.X+1.52*Mult),pt01.Y,pt01.Z),(pt01)])
-    Surface = rs.ExtrudeCurveStraight(Curve,(pt01),(pt01.X,(pt01.Y+1*Mult),pt01.Z))
-    rs.CapPlanarHoles(Surface)
-    rs.DeleteObject(Curve)
 
-if RampType == 2: #Ramp
-    Grade = '1:19','1:18','1:17','1:16','1:15','1:14'
-    Index = rs.PopupMenu(Grade)
-    GradeNum = [19,18,17,16,15,14]
-    if Index == 5:
-        Rise = 9/(GradeNum[Index])
-        Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(Rise*Mult)),((pt01.X+9*Mult),pt01.Y,pt01.Z),(pt01)])
-        Surface = rs.ExtrudeCurveStraight(Curve,(pt01),(pt01.X,(pt01.Y+1*Mult),pt01.Z))
-        rs.CapPlanarHoles(Surface)
-        rs.DeleteObject(Curve)
-    elif Index != 5:
-        Rise = 15/(GradeNum[Index])
-        Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(Rise*Mult)),((pt01.X+15*Mult),pt01.Y,pt01.Z),(pt01)])
+    if RampType == -1:
+        exit()
+
+    if RampType == 0: #Step Ramp
+        Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(0.190*Mult)),((pt01.X+1.9*Mult),pt01.Y,pt01.Z),(pt01)])
         Surface = rs.ExtrudeCurveStraight(Curve,(pt01),(pt01.X,(pt01.Y+1*Mult),pt01.Z))
         rs.CapPlanarHoles(Surface)
         rs.DeleteObject(Curve)
 
-if RampType == 3: #Walkway
-    Grade = '1:33','1:32','1:31','1:30','1:29','1:28','1:27','1:26','1:25','1:24','1:23','1:22','1:21','1:20'
-    Index = rs.PopupMenu(Grade)
-    GradeNum = [33,32,31,30,29,28,27,26,25,24,23,22,21,20]
-    if Index == 0:
-        Rise = 25/(GradeNum[Index])
-        Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(Rise*Mult)),((pt01.X+25*Mult),pt01.Y,pt01.Z),(pt01)])
-        Surface = rs.ExtrudeCurveStraight(Curve,(pt01),(pt01.X,(pt01.Y+1*Mult),pt01.Z))
-        rs.CapPlanarHoles(Surface)
-        rs.DeleteObject(Curve)
-    if Index == 13:
-        Rise = 15/(GradeNum[Index])
-        Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(Rise*Mult)),((pt01.X+15*Mult),pt01.Y,pt01.Z),(pt01)])
-        Surface = rs.ExtrudeCurveStraight(Curve,(pt01),(pt01.X,(pt01.Y+1*Mult),pt01.Z))
-        rs.CapPlanarHoles(Surface)
-        rs.DeleteObject(Curve)
-    elif Index != 0 or Index != 13:
-        Interp = m.floor((( GradeNum[Index] - 20)*(25 - 15)/(33 - 20))+15) #Linear interpolation of landing distance - DDA requirement...Srsly?
-        Rise = Interp/(GradeNum[Index])
-        Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(Rise*Mult)),((pt01.X+Interp*Mult),pt01.Y,pt01.Z),(pt01)])
+    if RampType == 1: #Kerb Ramp
+    #main ramp portion
+        Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(0.190*Mult)),((pt01.X+1.52*Mult),pt01.Y,pt01.Z),(pt01)])
         Surface = rs.ExtrudeCurveStraight(Curve,(pt01),(pt01.X,(pt01.Y+1*Mult),pt01.Z))
         rs.CapPlanarHoles(Surface)
         rs.DeleteObject(Curve)
 
-rs.EnableRedraw(True)
+    if RampType == 2: #Ramp
+        Grade = '1:19','1:18','1:17','1:16','1:15','1:14'
+        Index = rs.PopupMenu(Grade)
+        GradeNum = [19,18,17,16,15,14]
+        if Index == 5:
+            Rise = 9/(GradeNum[Index])
+            Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(Rise*Mult)),((pt01.X+9*Mult),pt01.Y,pt01.Z),(pt01)])
+            Surface = rs.ExtrudeCurveStraight(Curve,(pt01),(pt01.X,(pt01.Y+1*Mult),pt01.Z))
+            rs.CapPlanarHoles(Surface)
+            rs.DeleteObject(Curve)
+        elif Index != 5:
+            Rise = 15/(GradeNum[Index])
+            Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(Rise*Mult)),((pt01.X+15*Mult),pt01.Y,pt01.Z),(pt01)])
+            Surface = rs.ExtrudeCurveStraight(Curve,(pt01),(pt01.X,(pt01.Y+1*Mult),pt01.Z))
+            rs.CapPlanarHoles(Surface)
+            rs.DeleteObject(Curve)
+
+    if RampType == 3: #Walkway
+        Grade = '1:33','1:32','1:31','1:30','1:29','1:28','1:27','1:26','1:25','1:24','1:23','1:22','1:21','1:20'
+        Index = rs.PopupMenu(Grade)
+        GradeNum = [33,32,31,30,29,28,27,26,25,24,23,22,21,20]
+        if Index == 0:
+            Rise = 25/(GradeNum[Index])
+            Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(Rise*Mult)),((pt01.X+25*Mult),pt01.Y,pt01.Z),(pt01)])
+            Surface = rs.ExtrudeCurveStraight(Curve,(pt01),(pt01.X,(pt01.Y+1*Mult),pt01.Z))
+            rs.CapPlanarHoles(Surface)
+            rs.DeleteObject(Curve)
+        if Index == 13:
+            Rise = 15/(GradeNum[Index])
+            Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(Rise*Mult)),((pt01.X+15*Mult),pt01.Y,pt01.Z),(pt01)])
+            Surface = rs.ExtrudeCurveStraight(Curve,(pt01),(pt01.X,(pt01.Y+1*Mult),pt01.Z))
+            rs.CapPlanarHoles(Surface)
+            rs.DeleteObject(Curve)
+        elif Index != 0 or Index != 13:
+            Interp = m.floor((( GradeNum[Index] - 20)*(25 - 15)/(33 - 20))+15) #Linear interpolation of landing distance - DDA requirement...Srsly?
+            Rise = Interp/(GradeNum[Index])
+            Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(Rise*Mult)),((pt01.X+Interp*Mult),pt01.Y,pt01.Z),(pt01)])
+            Surface = rs.ExtrudeCurveStraight(Curve,(pt01),(pt01.X,(pt01.Y+1*Mult),pt01.Z))
+            rs.CapPlanarHoles(Surface)
+            rs.DeleteObject(Curve)
+
+    rs.EnableRedraw(True)
+
 )</script>
     </macro_item>
     <macro_item guid="4055eaa6-4427-427c-b6a5-e6cdbac914c2" bitmap_id="4bec978a-dd98-4658-b848-0f810eefd6bf">
@@ -615,12 +631,14 @@ import rhinoscriptsyntax as rs
 
 geo = rs.GetObjects('Select Closed Polylines',preselect=True)
 
-uv1 = rs.GetInteger('enter number of UV divisions',number=1,minimum=1)
+if geo:
+    
+    uv1 = rs.GetInteger('enter number of UV divisions',number=1,minimum=1)
 
-rs.EnableRedraw(False)
-for objects in geo:
-    rs.AddPatch((objects),(uv1,uv1),tolerance=0.0001)
-rs.EnableRedraw(True)
+    rs.EnableRedraw(False)
+    for objects in geo:
+        rs.AddPatch((objects),(uv1,uv1))
+    rs.EnableRedraw(True)
 
 )</script>
     </macro_item>
@@ -651,32 +669,35 @@ import rhinoscriptsyntax as rs
 # Get object and find layer it is on
 obj = rs.GetObjects('select an object on the layer to isolate',preselect=True)
 
-rs.EnableRedraw(False)
+if obj:
 
-# Create list of selected obj layers
-selectedlayers = []
-for i in obj:
-    layer = rs.ObjectLayer(i)
-    selectedlayers.append(layer)
 
-# Select all objects on each layer
+    rs.EnableRedraw(False)
 
-for i in selectedlayers:
-    rs.ObjectsByLayer(i,True)
-isolate = rs.SelectedObjects()
+    # Create list of selected obj layers
+    selectedlayers = []
+    for i in obj:
+        layer = rs.ObjectLayer(i)
+        selectedlayers.append(layer)
 
-allObjects = rs.AllObjects()
+    # Select all objects on each layer
 
-for i in isolate:
-    allObjects.remove(i)
+    for i in selectedlayers:
+        rs.ObjectsByLayer(i,True)
+    isolate = rs.SelectedObjects()
 
-# Hide selected objects
+    allObjects = rs.AllObjects()
 
-rs.HideObjects(allObjects)
+    for i in isolate:
+        allObjects.remove(i)
 
-rs.UnselectAllObjects()
+    # Hide selected objects
 
-rs.EnableRedraw(True)
+    rs.HideObjects(allObjects)
+
+    rs.UnselectAllObjects()
+
+    rs.EnableRedraw(True)
 )</script>
     </macro_item>
     <macro_item guid="87791b70-7cac-4efc-a5c4-deece16831aa" bitmap_id="7c225bac-4566-4c22-8529-19795734ecf8">
@@ -708,7 +729,9 @@ import rhinoscriptsyntax as rs
 
 obj = rs.HiddenObjects()
 
-rs.ShowObjects(obj)
+if obj:
+
+    rs.ShowObjects(obj)
 )</script>
     </macro_item>
     <macro_item guid="96e93532-81ce-4156-b7f7-b7ff1364c489" bitmap_id="3a30ba51-3cf2-4d5a-ae4e-e7727296e181">
@@ -722,19 +745,30 @@ rs.ShowObjects(obj)
         <locale_1033>Turn Selected Object Layers Off</locale_1033>
       </button_text>
       <script>! _-RunPythonScript (
+'''
+
+Copyright &lt;2021&gt; &lt;Thomas Chapman&gt;
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+'''
 
 import rhinoscriptsyntax as rs
 
 obj = rs.GetObjects("select obj Layers to turn off")
 
-rs.EnableRedraw(False)
+if obj:
 
-for i in obj:
-    layer = rs.ObjectLayer(i)
-    rs.LayerVisible(layer, visible=False)
+    rs.EnableRedraw(False)
 
-rs.EnableRedraw(True)
+    for i in obj:
+        layer = rs.ObjectLayer(i)
+        rs.LayerVisible(layer, visible=False)
 
+    rs.EnableRedraw(True)
 )</script>
     </macro_item>
     <macro_item guid="d16957a9-f662-446d-9801-c0533fb38255" bitmap_id="5ecdbeb8-4c26-464d-965a-d29084b78338">
@@ -913,6 +947,7 @@ rs.AddPictureFrame(picturePlane,jpg,width=(float(scaleFactorWidth)), height=(flo
         <locale_1033>Create Standard Layers</locale_1033>
       </button_text>
       <script>! _-RunPythonScript (
+
 '''
 
 Copyright &lt;2021&gt; &lt;Thomas Chapman&gt;
@@ -929,11 +964,9 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 import rhinoscriptsyntax as rs
 import random as r
 
-#Change Document to Meters, give option to scale
-
-
-
 #Add Layers to document
+
+rs.EnableRedraw(False)
 
 layerList = [
 "L_BLDS", 
@@ -944,7 +977,10 @@ layerList = [
 "L_HARD_STEP",
 "L_HARD_RAMP",
 "L_HARD_FNCE",
-"L_HARD_PAVE",
+"L_HARD_PAV1",
+"L_HARD_PAV2",
+"L_HARD_PAV3",
+"L_HARD_PAV4",
 "L_LGHT",
 "L_ENTO",
 "L_PLAY_EQUI",
@@ -958,8 +994,10 @@ layerList = [
 "L_SOFT_GRDN",
 "L_SOFT_MLCH",
 "L_SOFT_LAWN",
+"L_SOFT_PLANT",
 "L_FURN",
-"L_SOFT_SHUB"
+"_L_OFF"
+
 
 ]
 
@@ -971,6 +1009,8 @@ parentLayer = rs.AddLayer(name="LANDSCAPE", color=None, visible=True, locked=Fal
 
 for layer in layerList:
     rs.AddLayer(layer,(r.randrange(255),r.randrange(255),r.randrange(255)),visible=True, locked=False, parent= parentLayer)
+
+rs.EnableRedraw(True)
 )</script>
     </macro_item>
     <macro_item guid="812b1c36-0e85-4b6c-9982-e2b575bf9c7b" bitmap_id="b54432f0-91ec-43b6-8b11-4a7654e19716">
@@ -984,7 +1024,6 @@ for layer in layerList:
         <locale_1033>Calculate Height difference between two points</locale_1033>
       </button_text>
       <script>! _-RunPythonScript (
-
 '''
 
 Copyright &lt;2021&gt; &lt;Thomas Chapman&gt;
@@ -1001,16 +1040,17 @@ import rhinoscriptsyntax as rs
 pt01 = rs.GetPoint('Select first point to measure from')
 pt02 = rs.GetPoint('Select second point to measure to')
 
-pt01Z = pt01.Z
-pt02Z = pt02.Z
+if pt02:
 
-height = abs(pt01Z-pt02Z)
-height = round(height, 3)
+    pt01Z = pt01.Z
+    pt02Z = pt02.Z
 
-rs.ClipboardText(height)
+    height = abs(pt01Z-pt02Z)
+    height = round(height, 3)
 
-rs.MessageBox(height, buttons=0, title="Height difference - Value copied to clipboard")
+    rs.ClipboardText(height)
 
+    rs.MessageBox(height, buttons=0, title="Height difference - Value copied to clipboard")
 )</script>
     </macro_item>
   </macros>
@@ -1034,19 +1074,10 @@ rs.MessageBox(height, buttons=0, title="Height difference - Value copied to clip
       <bitmap_item guid="5e8ac9ba-79e9-48e6-bdff-a3a3cf4780bb" index="15" />
       <bitmap_item guid="b54432f0-91ec-43b6-8b11-4a7654e19716" index="16" />
       <bitmap>iVBORw0KGgoAAAANSUhEUgAAABAAAAEQCAYAAAC5hPTVAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
-jwv8YQUAAAAJcEhZcwAADrwAAA68AZW8ckkAAAKGSURBVHhe7c9bSJNxGMdxCyOoKEXs4CGziLIU
-uohCKkcH6WBpokWg6JwpgW7TXGYpbmorxEFpCOaFaTaQ0oJZ07AQdTdWRIghTKjmNmOpmXgKwj09
-73wzLcPqoqvfB77sz/Y8//edGwAAAAAAwL8yy0uXise/Z5EXaPoUakO/XOstfvXn3snzLzkyr9DE
-RR3ZFYWPbGk5XuJPC7Mo1Dm9GWqnI1NLNmUhjVwoJku65vGCb0Kpt5a9T1fnmTOnl/sUBWTl7MIl
-qmLXm0zk6vzF8V+Zk1Xxjowi+nj+x/L3eJlG+ZK3Wdp74vgcHlz2gbV+T7sTkieE/z572VVaPg1p
-yqg4TtbDs6VckLAoWMM94Mq123cqrdGykf7kbLIqi3ixcGbZfllHY/eb6VWl/g7PZnEd3CHOLZer
-Eg5Hff0T9JII52BsCllkKr6EL0hTu5YH9I003myiMUNbmTDLTnNNwkHGGTiPIz4bEvet9plqDDtO
-AzEpZEtSkVlxfWq4zkijxg6ilk6aevbihrDE8rga4eDOXeUMx9YF1CRtDJoM8fCiRkkEvYmSOh06
-/XhPdb3TXF1PnTerKPeM1MSztVwDt4mbIQlcsbL68CrPyeXu7hTMl0T6BlLklm1fI/dIKCo0jGL2
-7qfdW4Of82wit8S19bMdnt7t5zaHUOvBaKoIDXfWKZWTT0rK6XXFXeqq1Lc5reN+4ui84rn69vDY
-ks+nUmko5iyN1jaMkamLvjSZOqjbvn56bK5F4qdgFxcgHHpPxGlsJ6U0cvshDRtb2wYbjL998mKx
-2Re59EZLr30oq2n61PJy3icDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPw/bm7fAPXzNqvPLslX
-AAAAAElFTkSuQmCC</bitmap>
+jwv8YQUAAAAJcEhZcwAADrwAAA68AZW8ckkAAAAoSURBVHhe7cExAQAAAMKg9U9tDQ8gAAAAAAAA
+AAAAAAAAAAAAAIALNUUQAAG2NJXKAAAAAElFTkSuQmCCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==</bitmap>
     </small_bitmap>
     <normal_bitmap item_width="24" item_height="24">
       <bitmap_item guid="f9c5b694-dced-4977-a15f-92d9fff043bc" index="0" />
@@ -1067,10 +1098,27 @@ AAAAAElFTkSuQmCC</bitmap>
       <bitmap_item guid="5e8ac9ba-79e9-48e6-bdff-a3a3cf4780bb" index="15" />
       <bitmap_item guid="b54432f0-91ec-43b6-8b11-4a7654e19716" index="16" />
       <bitmap>iVBORw0KGgoAAAANSUhEUgAAABgAAAGYCAYAAABYsCKUAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
-jwv8YQUAAAAJcEhZcwAADrwAAA68AZW8ckkAAAA9SURBVHhe7cExAQAAAMKg9U9tCy8gAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOapqYAAHN4IEYAAAAAElFTkSuQmCCAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==</bitmap>
+jwv8YQUAAAAJcEhZcwAADrwAAA68AZW8ckkAAARUSURBVHhe7dR9TFV1HMfxe70gD4JAemMq8eDi
+UQVhQbGLaVMhUdhSAy8+gF5k5dQ/IjRAHGs1SFHJWDi2FEEjeZDKGU1RGGyZYg+LBq6m/7hsS4sQ
+VEC4n74/DoJrXbst1/rj89re2+Gec35fzu/C0RERERERERERERERERHR/5uDtFpKGP3pMYub5uRa
+/9riJFhiFg0YdLpy+SxEO/Xv+DoaDKXJoZE32zbnA7XnMXTmEhqzC7HIP+S6nN8pTR+98h/ylLaa
+/AJ/PJzyCoaLqoB9tcABSYagvRN9J8+hxGxBuHHmZbk2RVJb+Lf0UupMryda9yauwS+Fh4DSBmDP
+caC4GlCD3j4KvCuDTrYBF7pxtaIWOS8kW50dHD6VexePrvIIbs56fXOkcSYaM7KtIyU18lvXA+8c
+0wY8qEiqagI6fsDdpi9RvibLGuwxDQad/ujYOja5Rbh61h2cHY1NMwKHMiJN91q37Ab21wElH008
+xfFmoOUbNOYW30+dFzOYNyf63pmlKZisN1SPrWPTlDBXjxNfRC5Dj8lsLfN7ZjDRO+BO9oLEe9fy
+DmqD9p1AR87ekUzTkgGzT1B/U8rm+6ioxzVLDuT+Sm0Z22SAe+3ZiKW4HZc2Wmfk8uECn9D+ZT5B
+vR+szhx488XUoRWzZvceWZDU//ueihE0nAU+a0fX1l12DXCd4+RZdy48Hr/FmfFT7Mu4ZUqVp1mD
+S+EJd0Oc3fqzAuffvvHSq/eRewAor8FI/n7g8El0bd9t34C5Tu71LTKgZ2yA6oY09Pw6mI0BuJy8
+EcgswEj6Gxhel4PhjJ3AkUZ0bbNzwDxX94aWCHkC08QAVZ9sV4rRH23L1wOb8jG8XhZfm41hSx5Q
++bEMKLBvgPwVNbTOt2PAhh3yBK9rA6pPodvOLZoSMcXr1IWoRPmC7RigniJdtqikElctO9SAY9oy
+trl7ODieLn06ZvTL7ZVF1f7bGmBVi1t24U76DhyKTVAD3teWebRnJ+v1VWlG/8Hm8KUyxIybMqz/
+TwOwUbZGak1Iw2rfwFt6vf49uTdYW+KvpUsPv+tX+Du6nM9+KgzfRyfDunAD0rwDcDEpA8gqxJWV
+WcgKjhrxlte4XGvSbhm1ULJohxM8pIvSbUn9u0dKinqrbgl38bxSGRyLVUY/nI5PQdlz8Qh18+qQ
+c6mSi7pQRElVUo/ULU2Sxs2VfpbUPqq2SQ/zddTpi5wmGfrCpk6/LnfmymdTtVPjtksP7v9V8pfG
+JUlfS8WSer+rV696TKP0MLUVYdrhOHWNuvYT6Stpr9QuJUvjvKUHE4Mk9YV1St9Kn0tlUr60VlLf
+1a6xz5okdc130kEpUFJmSLO0Q9uelFZKb0k1kvoNz46ljj+U1LlVkrr2sXCWnLRDIiIiIiIiIiIi
+IiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIvrv6XR/AOkg
+MjJu+v8TAAAAAElFTkSuQmCC</bitmap>
     </normal_bitmap>
     <large_bitmap item_width="32" item_height="32">
       <bitmap_item guid="f9c5b694-dced-4977-a15f-92d9fff043bc" index="0" />
