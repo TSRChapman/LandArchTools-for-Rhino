@@ -1,4 +1,4 @@
-# LandArchTools
+# LandArchTools for Rhino
 Custom Tools for landscape Architects
 
 A set of python scripts integral to the Landscape Architectural proffesion that are lacking in the Rhinocerous 3D Modelling Software.
