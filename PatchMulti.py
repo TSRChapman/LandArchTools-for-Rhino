@@ -22,5 +22,5 @@ if geo:
 
     rs.EnableRedraw(False)
     for objects in geo:
-        rs.AddPatch((objects),(uv1,uv1))
+        rs.AddPatch((objects),(uv1,uv1),tolerance=0.0001)
     rs.EnableRedraw(True)
