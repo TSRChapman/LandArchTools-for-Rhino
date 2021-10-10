@@ -16,21 +16,30 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 import rhinoscriptsyntax as rs
 import os
 
-point = rs.GetPoint('Select point')
+def scale():
+    system = rs.UnitSystem()
+    if system == 2 or system == 3 or system == 4:
+        scaleFactorDict = {2:0.001, 3:0.01, 4:1}
+        scaleFactor = scaleFactorDict[system]
+        return scaleFactor
 
-if point:
-    pointZ = point.Z
+    if system != 2 or system != 3 or system != 4:
+        return None
 
-    if rs.UnitSystem() == 3: #if doc is in CM
-        pointZ = pointZ *0.01
-    if rs.UnitSystem() == 2:#if doc is in MM
-         pointZ = pointZ *0.001
-
+def main():
+    if scale() == None:
+        rs.MessageBox("This tool is can only be used in mm, cm or m model units")
+        return None
+        
+    point = rs.GetPoint('Select point')
+    
+    if point:
+        pointZ = point.Z
+    pointZ = pointZ*scale()
     rs.AddTextDot('+RL ' + str(round(pointZ,3)),point)
-
+    
     #Copy RL to Clipboard
-
     RL = str(round(pointZ,3))
-
     rs.ClipboardText(RL)
 
+main()

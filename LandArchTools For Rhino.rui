@@ -9,7 +9,7 @@
   </extend_rhino_menus>
   <menus />
   <tool_bar_groups>
-    <tool_bar_group guid="4830f6fe-5b84-4155-9c85-a8ae8942b65e" dock_bar_guid32="00000000-0000-0000-0000-000000000000" dock_bar_guid64="92d659a2-6f79-4f2b-8ba6-2670971a2e86" active_tool_bar_group="c0ddb15f-03f5-4dff-86f7-7745ab4674f7" single_file="False" hide_single_tab="True" point_floating="1797,358">
+    <tool_bar_group guid="4830f6fe-5b84-4155-9c85-a8ae8942b65e" dock_bar_guid32="00000000-0000-0000-0000-000000000000" dock_bar_guid64="92d659a2-6f79-4f2b-8ba6-2670971a2e86" active_tool_bar_group="c0ddb15f-03f5-4dff-86f7-7745ab4674f7" single_file="False" hide_single_tab="True" point_floating="1474,414">
       <text>
         <locale_1033>LandArchTools</locale_1033>
       </text>
@@ -19,7 +19,7 @@
         </text>
         <tool_bar_id>d8dc19cb-56d8-4f50-b015-76d6b2e6fb1f</tool_bar_id>
       </tool_bar_group_item>
-      <dock_bar_info dpi_scale="100" dock_bar="False" docking="True" horz="False" visible="True" floating="True" mru_float_style="8192" bar_id="59474" mru_width="868" point_pos="-2,-2" float_point="1797,358" rect_mru_dock_pos="0,574,35,960" dock_location_u="59420" dock_location="left" float_size="612,62" />
+      <dock_bar_info dpi_scale="100" dock_bar="False" docking="True" horz="False" visible="True" floating="True" mru_float_style="8192" bar_id="59476" mru_width="868" point_pos="-2,-2" float_point="1474,414" rect_mru_dock_pos="0,574,35,960" dock_location_u="59420" dock_location="left" float_size="612,62" />
     </tool_bar_group>
   </tool_bar_groups>
   <tool_bars>
@@ -122,48 +122,61 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 import rhinoscriptsyntax as rs
 import math as m
 
-# Get points from user
-pt1 = rs.GetPoint('Pick the first point')
-pt2 = rs.GetPoint('Pick the second point')
+#Determin Unit system and scale m input to unit system scale and close if not mm, cm, m
+def scale():
+    system = rs.UnitSystem()
+    if system == 2 or system == 3 or system == 4:
+        scaleFactorDict = {2:1000, 3:100, 4:1}
+        scaleFactor = scaleFactorDict[system]
+        return scaleFactor
 
+    if system != 2 or system != 3 or system != 4:
+        return None
 
-if pt2:
-    hypotenuse = rs.Distance(pt1, pt2)
+def main():
+    if scale() == None:
+        rs.MessageBox("This tool is can only be used in mm, cm or m model units")
+        return None
+    
+    # Get points from user
+    pt1 = rs.GetPoint('Pick the first point')
+    pt2 = rs.GetPoint('Pick the second point')
+    
+    if pt2:
+        rs.EnableRedraw(False)
+        hypotenuse = rs.Distance(pt1, pt2)
+    
+        # Find the rise of given points in any order
+        if pt1.Z == pt2.Z:
+            return None
+        if pt1.Z &gt; pt2.Z:
+            rise = pt1.Z - pt2.Z
+        elif pt1.Z &lt; pt2.Z:
+            rise = pt2.Z - pt1.Z
+    
+        # Find the run of given points
+        run = m.sqrt(hypotenuse**2 - rise**2)
+    
+        # Detect model units and scale to mm, if mm do nothing
+        rise = rise*scale()
+        run = run*scale()
+    
+        # Calculate grade based on rise and run
+        try:
+            grade = run / rise
+    
+        except ZeroDivisionError:
+            print('No Grade Found')
+            exit()
+    
+        # Print text dot to screen
+        curve = rs.AddCurve([pt1,pt2])
+        midpoint = rs.CurveMidPoint(curve)
+        rs.DeleteObject(curve)
+        rs.AddTextDot('1:' + str(abs(round(grade,2))),midpoint)
+        rs.EnableRedraw(True)
 
-    rs.EnableRedraw(False)
-
-
-    # Find the rise of given points in any order
-    if pt1.Z &gt; pt2.Z:
-        rise = pt1.Z - pt2.Z
-    elif pt1.Z &lt; pt2.Z:
-        rise = pt2.Z - pt1.Z
-
-    # Find the run of given points
-    run = m.sqrt(hypotenuse**2 - rise**2)
-
-    # Detect model units and scale to mm, if mm do nothing
-    if rs.UnitSystem == 3:
-        rise = rise*100
-    if rs.UnitSystem == 4:
-        rise = rise*1000
-
-    # Calculate grade based on rise and run
-    try:
-        grade = run / rise
-
-    except ZeroDivisionError:
-        print('No Grade Found')
-        exit()
-
-    # Print text dot to screen
-    curve = rs.AddCurve([pt1,pt2])
-    midpoint = rs.CurveMidPoint(curve)
-    rs.DeleteObject(curve)
-    rs.AddTextDot('1:' + str(abs(round(grade,2))),midpoint)
-
-    rs.EnableRedraw(True)
-
+main()
 )</script>
     </macro_item>
     <macro_item guid="ba483181-ff75-4d51-9bba-974118b80da5" bitmap_id="dc6a7aa7-f6fd-483a-b86e-40ca3a405b92">
@@ -195,25 +208,33 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 import rhinoscriptsyntax as rs
 import os
 
-point = rs.GetPoint('Select point')
+def scale():
+    system = rs.UnitSystem()
+    if system == 2 or system == 3 or system == 4:
+        scaleFactorDict = {2:0.001, 3:0.01, 4:1}
+        scaleFactor = scaleFactorDict[system]
+        return scaleFactor
 
-if point:
-    pointZ = point.Z
+    if system != 2 or system != 3 or system != 4:
+        return None
 
-    if rs.UnitSystem() == 3: #if doc is in CM
-        pointZ = pointZ *0.01
-    if rs.UnitSystem() == 2:#if doc is in MM
-         pointZ = pointZ *0.001
-
+def main():
+    if scale() == None:
+        rs.MessageBox("This tool is can only be used in mm, cm or m model units")
+        return None
+        
+    point = rs.GetPoint('Select point')
+    
+    if point:
+        pointZ = point.Z
+    pointZ = pointZ*scale()
     rs.AddTextDot('+RL ' + str(round(pointZ,3)),point)
-
+    
     #Copy RL to Clipboard
-
     RL = str(round(pointZ,3))
-
     rs.ClipboardText(RL)
 
-
+main()
 )</script>
     </macro_item>
     <macro_item guid="4211923b-f22f-4ab1-8745-e05f836d0bf8" bitmap_id="8a465cae-79a9-4baa-b77e-ef3d92b27f3c">
@@ -244,31 +265,48 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 import rhinoscriptsyntax as rs
 import Rhino.Geometry as geo
 
-obj = rs.GetObjects('Select objects',preselect=True)
 
-if obj:
-    current = rs.GetPoint('Select point')
+#Determin Unit system and scale m input to unit system scale and close if not mm, cm, m
+def scale():
+    system = rs.UnitSystem()
+    if system == 2 or system == 3 or system == 4:
+        scaleFactorDict = {2:1000, 3:100, 4:1}
+        scaleFactor = scaleFactorDict[system]
+        return scaleFactor
+
+    if system != 2 or system != 3 or system != 4:
+        return None
+
+
+
+def main():
+
+    if scale() == None:
+        rs.MessageBox("This tool is can only be used in mm, cm or m model units")
+        return None
+
+    obj = rs.GetObjects('Select objects',preselect=True)
+    if obj:
+        current = rs.GetPoint('Select point')
+        
+        if current: 
+            rl = rs.GetString('RL to move to?')
+            rl = float(rl)
+            rl = rl*scale()
+            
+            if rl == 0.000: #move objects to the 0 coord
+                target3 = current.Z
+                if target3:
+                    target3 = target3 *-1
+                    target4 = geo.Point3d(0,0,target3)
+                    rs.MoveObject(obj, target4)
     
-    if current: 
-        rl = rs.GetString('RL to move to?')
-        rl = float(rl)
-        
-        if rs.UnitSystem() == 3: #if model is in cm scale by 100
-            rl = rl*100
-        elif rs.UnitSystem() == 2: #if model is in mm scale by 1000
-            rl = rl*1000
-        
-        if rl == 0.000: #move objects to the 0 coord
-            target3 = current.Z
-            if target3:
-                target3 = target3 *-1
-                target4 = geo.Point3d(0,0,target3)
-                rs.MoveObject(obj, target4)
+            elif rl &gt; 0.000:
+                target = rl - current.Z #+ or - number to target location
+                target2 = geo.Point3d(0,0,target) #translated vector needed to hit target
+                rs.MoveObject(obj, target2)
 
-        elif rl &gt; 0.000:
-            target = rl - current.Z #+ or - number to target location
-            target2 = geo.Point3d(0,0,target) #translated vector needed to hit target
-            rs.MoveObject(obj, target2)
+main ()
 )</script>
     </macro_item>
     <macro_item guid="ef338e36-b652-464e-9f92-9d8c746720f3" bitmap_id="bca0a23f-5397-475b-9a42-1ef72c11f863">
@@ -453,87 +491,95 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 import rhinoscriptsyntax as rs
 import math as m
 
+#Determin Unit system and scale m input to unit system scale and close if not mm, cm, m
+def scale():
+    system = rs.UnitSystem()
+    if system == 2 or system == 3 or system == 4:
+        scaleFactorDict = {2:1000, 3:100, 4:1}
+        scaleFactor = scaleFactorDict[system]
+        return scaleFactor
 
-if rs.UnitSystem() == 4: #if doc is in M
-    Mult = 1
-if rs.UnitSystem() == 3: #if doc is in CM
-    Mult = 100
-if rs.UnitSystem() == 2:#if doc is in MM
-    Mult = 1000
+    if system != 2 or system != 3 or system != 4:
+        return None
 
+def main():
+    if scale() == None:
+        rs.MessageBox("This tool is can only be used in mm, cm or m model units")
+        return None
 
-
-pt00 = rs.GetPoint('Pick insertion point')
-
-if pt00:
-
-
-    pt01 = rs.CreatePoint(pt00.X,pt00.Y)
-    RampOptions = 'Step Ramp', 'Kerb Ramp', 'Ramp', 'Walkway'
-    RampType = rs.PopupMenu(RampOptions)
-
-    rs.EnableRedraw(False)
-
-
-    if RampType == -1:
-        exit()
-
-    if RampType == 0: #Step Ramp
-        Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(0.190*Mult)),((pt01.X+1.9*Mult),pt01.Y,pt01.Z),(pt01)])
-        Surface = rs.ExtrudeCurveStraight(Curve,(pt01),(pt01.X,(pt01.Y+1*Mult),pt01.Z))
-        rs.CapPlanarHoles(Surface)
-        rs.DeleteObject(Curve)
-
-    if RampType == 1: #Kerb Ramp
-    #main ramp portion
-        Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(0.190*Mult)),((pt01.X+1.52*Mult),pt01.Y,pt01.Z),(pt01)])
-        Surface = rs.ExtrudeCurveStraight(Curve,(pt01),(pt01.X,(pt01.Y+1*Mult),pt01.Z))
-        rs.CapPlanarHoles(Surface)
-        rs.DeleteObject(Curve)
-
-    if RampType == 2: #Ramp
-        Grade = '1:19','1:18','1:17','1:16','1:15','1:14'
-        Index = rs.PopupMenu(Grade)
-        GradeNum = [19,18,17,16,15,14]
-        if Index == 5:
-            Rise = 9/(GradeNum[Index])
-            Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(Rise*Mult)),((pt01.X+9*Mult),pt01.Y,pt01.Z),(pt01)])
+    Mult = scale()
+    pt00 = rs.GetPoint('Pick insertion point')
+    
+    if pt00:
+    
+    
+        pt01 = rs.CreatePoint(pt00.X,pt00.Y)
+        RampOptions = 'Step Ramp', 'Kerb Ramp', 'Ramp', 'Walkway'
+        RampType = rs.PopupMenu(RampOptions)
+    
+        rs.EnableRedraw(False)
+    
+    
+        if RampType == -1:
+            exit()
+    
+        if RampType == 0: #Step Ramp
+            Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(0.190*Mult)),((pt01.X+1.9*Mult),pt01.Y,pt01.Z),(pt01)])
             Surface = rs.ExtrudeCurveStraight(Curve,(pt01),(pt01.X,(pt01.Y+1*Mult),pt01.Z))
             rs.CapPlanarHoles(Surface)
             rs.DeleteObject(Curve)
-        elif Index != 5:
-            Rise = 15/(GradeNum[Index])
-            Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(Rise*Mult)),((pt01.X+15*Mult),pt01.Y,pt01.Z),(pt01)])
+    
+        if RampType == 1: #Kerb Ramp
+        #main ramp portion
+            Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(0.190*Mult)),((pt01.X+1.52*Mult),pt01.Y,pt01.Z),(pt01)])
             Surface = rs.ExtrudeCurveStraight(Curve,(pt01),(pt01.X,(pt01.Y+1*Mult),pt01.Z))
             rs.CapPlanarHoles(Surface)
             rs.DeleteObject(Curve)
+    
+        if RampType == 2: #Ramp
+            Grade = '1:19','1:18','1:17','1:16','1:15','1:14'
+            Index = rs.PopupMenu(Grade)
+            GradeNum = [19,18,17,16,15,14]
+            if Index == 5:
+                Rise = 9/(GradeNum[Index])
+                Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(Rise*Mult)),((pt01.X+9*Mult),pt01.Y,pt01.Z),(pt01)])
+                Surface = rs.ExtrudeCurveStraight(Curve,(pt01),(pt01.X,(pt01.Y+1*Mult),pt01.Z))
+                rs.CapPlanarHoles(Surface)
+                rs.DeleteObject(Curve)
+            elif Index != 5:
+                Rise = 15/(GradeNum[Index])
+                Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(Rise*Mult)),((pt01.X+15*Mult),pt01.Y,pt01.Z),(pt01)])
+                Surface = rs.ExtrudeCurveStraight(Curve,(pt01),(pt01.X,(pt01.Y+1*Mult),pt01.Z))
+                rs.CapPlanarHoles(Surface)
+                rs.DeleteObject(Curve)
+    
+        if RampType == 3: #Walkway
+            Grade = '1:33','1:32','1:31','1:30','1:29','1:28','1:27','1:26','1:25','1:24','1:23','1:22','1:21','1:20'
+            Index = rs.PopupMenu(Grade)
+            GradeNum = [33,32,31,30,29,28,27,26,25,24,23,22,21,20]
+            if Index == 0:
+                Rise = 25/(GradeNum[Index])
+                Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(Rise*Mult)),((pt01.X+25*Mult),pt01.Y,pt01.Z),(pt01)])
+                Surface = rs.ExtrudeCurveStraight(Curve,(pt01),(pt01.X,(pt01.Y+1*Mult),pt01.Z))
+                rs.CapPlanarHoles(Surface)
+                rs.DeleteObject(Curve)
+            if Index == 13:
+                Rise = 15/(GradeNum[Index])
+                Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(Rise*Mult)),((pt01.X+15*Mult),pt01.Y,pt01.Z),(pt01)])
+                Surface = rs.ExtrudeCurveStraight(Curve,(pt01),(pt01.X,(pt01.Y+1*Mult),pt01.Z))
+                rs.CapPlanarHoles(Surface)
+                rs.DeleteObject(Curve)
+            elif Index != 0 or Index != 13:
+                Interp = m.floor((( GradeNum[Index] - 20)*(25 - 15)/(33 - 20))+15) #Linear interpolation of landing distance - DDA requirement...Srsly?
+                Rise = Interp/(GradeNum[Index])
+                Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(Rise*Mult)),((pt01.X+Interp*Mult),pt01.Y,pt01.Z),(pt01)])
+                Surface = rs.ExtrudeCurveStraight(Curve,(pt01),(pt01.X,(pt01.Y+1*Mult),pt01.Z))
+                rs.CapPlanarHoles(Surface)
+                rs.DeleteObject(Curve)
+    
+        rs.EnableRedraw(True)
 
-    if RampType == 3: #Walkway
-        Grade = '1:33','1:32','1:31','1:30','1:29','1:28','1:27','1:26','1:25','1:24','1:23','1:22','1:21','1:20'
-        Index = rs.PopupMenu(Grade)
-        GradeNum = [33,32,31,30,29,28,27,26,25,24,23,22,21,20]
-        if Index == 0:
-            Rise = 25/(GradeNum[Index])
-            Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(Rise*Mult)),((pt01.X+25*Mult),pt01.Y,pt01.Z),(pt01)])
-            Surface = rs.ExtrudeCurveStraight(Curve,(pt01),(pt01.X,(pt01.Y+1*Mult),pt01.Z))
-            rs.CapPlanarHoles(Surface)
-            rs.DeleteObject(Curve)
-        if Index == 13:
-            Rise = 15/(GradeNum[Index])
-            Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(Rise*Mult)),((pt01.X+15*Mult),pt01.Y,pt01.Z),(pt01)])
-            Surface = rs.ExtrudeCurveStraight(Curve,(pt01),(pt01.X,(pt01.Y+1*Mult),pt01.Z))
-            rs.CapPlanarHoles(Surface)
-            rs.DeleteObject(Curve)
-        elif Index != 0 or Index != 13:
-            Interp = m.floor((( GradeNum[Index] - 20)*(25 - 15)/(33 - 20))+15) #Linear interpolation of landing distance - DDA requirement...Srsly?
-            Rise = Interp/(GradeNum[Index])
-            Curve = rs.AddPolyline([(pt01),(pt01.X,pt01.Y,(Rise*Mult)),((pt01.X+Interp*Mult),pt01.Y,pt01.Z),(pt01)])
-            Surface = rs.ExtrudeCurveStraight(Curve,(pt01),(pt01.X,(pt01.Y+1*Mult),pt01.Z))
-            rs.CapPlanarHoles(Surface)
-            rs.DeleteObject(Curve)
-
-    rs.EnableRedraw(True)
-
+main()
 )</script>
     </macro_item>
     <macro_item guid="4055eaa6-4427-427c-b6a5-e6cdbac914c2" bitmap_id="4bec978a-dd98-4658-b848-0f810eefd6bf">
@@ -775,6 +821,9 @@ rs.Command("_setview _w _p")
         <locale_1033>Import locate and scale NearMaps jpg</locale_1033>
       </button_text>
       <script>! _-RunPythonScript (
+import struct
+import imghdr
+import rhinoscriptsyntax as rs
 
 '''
 Copyright &lt;2021&gt; &lt;Thomas Chapman&gt;
@@ -786,20 +835,18 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 
 '''
 
-import glob
-import struct
-import imghdr
-import rhinoscriptsyntax as rs
-
 #Check document units
-units = rs.UnitSystem()
 
-if units == 2: #mm
-    scale = 1000
-if units == 3: #cm
-    scale = 100
-if units == 4: #m
-    scale = 1
+#Determin Unit system and scale m input to unit system scale and close if not mm, cm, m
+def scale():
+    system = rs.UnitSystem()
+    if system == 2 or system == 3 or system == 4:
+        scaleFactorDict = {2:1000, 3:100, 4:1}
+        scaleFactor = scaleFactorDict[system]
+        return scaleFactor
+
+    if system != 2 or system != 3 or system != 4:
+        return None
 
 def get_image_size(fname):
     '''Determine the image type of fhandle and return its size.
@@ -836,40 +883,46 @@ def get_image_size(fname):
             return
         return width, height
 
+def main():
+    if scale() == None:
+        rs.MessageBox("This tool is can only be used in mm, cm or m model units")
+        return None
+    
+    factor = scale()
+    
+    #Find and open jgw file, extract scalefactor and x and y coordinates
+    
+    jgw = rs.OpenFileName(title= 'Select .JGW file',filter="JGW Files (*.JGW)|*.JGW||" )
+    
+    with open(jgw,'rt') as f:
+        numslist = f.read().splitlines()
+    
+    scaleFactor01 = numslist[0]
+    
+    worldx = float(numslist[4])*int(factor)
+    worldy = float(numslist[5])*int(factor)
+    
+    #Find and open jpg file, extract pixel size
+    
+    jpg = rs.OpenFileName(title= 'Select .JPG image File',filter="JPG Files (*.JPG)|*.JPG||")
+    
+    size = get_image_size(jpg)
+    
+    scaleFactor02 = (float(size[0])*int(factor))
+    scaleFactor03 = (float(size[1])*int(factor))
+    
+    # Calculate scale factor
+    
+    scaleFactorWidth = (float(scaleFactor01))*(float(scaleFactor02))
+    scaleFactorHeight = (float(scaleFactor01))*(float(scaleFactor03))
+    
+    origin = (float(worldx), (float(worldy) - float(scaleFactorHeight)), 0)
+    
+    picturePlane = rs.PlaneFromFrame(origin,(1,0,0),(0,1,0))
+    
+    rs.AddPictureFrame(picturePlane,jpg,width=(float(scaleFactorWidth)), height=(float(scaleFactorHeight)))
 
-
-#Find and open jgw file, extract scalefactor and x and y coordinates
-
-jgw = rs.OpenFileName(title= 'Select .JGW file',filter="JGW Files (*.JGW)|*.JGW||" )
-
-with open(jgw,'rt') as f:
-    numslist = f.read().splitlines()
-
-scaleFactor01 = numslist[0]
-
-worldx = float(numslist[4])*int(scale)
-worldy = float(numslist[5])*int(scale)
-
-#Find and open jpg file, extract pixel size
-
-jpg = rs.OpenFileName(title= 'Select .JPG image File',filter="JPG Files (*.JPG)|*.JPG||")
-
-size = get_image_size(jpg)
-
-scaleFactor02 = (float(size[0])*int(scale))
-scaleFactor03 = (float(size[1])*int(scale))
-
-# Calculate scale factor
-
-scaleFactorWidth = (float(scaleFactor01))*(float(scaleFactor02))
-scaleFactorHeight = (float(scaleFactor01))*(float(scaleFactor03))
-
-origin = (float(worldx), (float(worldy) - float(scaleFactorHeight)), 0)
-
-picturePlane = rs.PlaneFromFrame(origin,(1,0,0),(0,1,0))
-
-rs.AddPictureFrame(picturePlane,jpg,width=(float(scaleFactorWidth)), height=(float(scaleFactorHeight)))
-
+main()
 )</script>
     </macro_item>
     <macro_item guid="63812035-1fa4-4e2a-8e3c-41fae14a9a2c" bitmap_id="5bb47664-de86-4b8e-88ce-835cfa2b3981">
@@ -1170,8 +1223,6 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 
 '''
 
-#Truncate World Coordinate
-
 import rhinoscriptsyntax as rs
 
 
@@ -1182,30 +1233,29 @@ if point:
     rs.EnableRedraw(False)
     northing = round(point.Y,5)
     easting = round(point.X,5)
-
+    
     #Add origin layer and lock it
     rs.AddLayer("_ORIGIN_",(255,0,0),visible=True,locked=True)
+    
+    #Draw origin marker
+    circle = rs.AddCircle(point,1)
+    quads = rs.EllipseQuadPoints(circle)
+    line1 = rs.AddLine(quads[0],quads[1])
+    line2 = rs.AddLine(quads[2],quads[3])
     originPoint = rs.AddPoint(point)
-
+    
+    #Draw text marker and designate a name
+    text = rs.AddText((" E "+ str(easting) + " N " + str(northing)), point, 0.5)
+    rs.ObjectName(text, "_ORIGIN_TEXT_")
+    rs.ObjectName(originPoint, "_ORIGIN_POINT_")
+    
+    #Move geometry to locked origin layer
+    rs.ObjectLayer([circle, line1, line2, originPoint, text], "_ORIGIN_")
+    
     #Move all objects to origin
     allObj = rs.AllObjects()
     vector = rs.VectorCreate((0,0,0),point)
     rs.MoveObjects(allObj,vector)
-
-    #Draw origin marker
-    circle = rs.AddCircle(originPoint,1)
-    quads = rs.EllipseQuadPoints(circle)
-    line1 = rs.AddLine(quads[0],quads[1])
-    line2 = rs.AddLine(quads[2],quads[3])
-
-    #Draw text marker and designate a name
-    text = rs.AddText((" E "+ str(easting) + " N " + str(northing)), originPoint, 0.5)
-    rs.ObjectName(text, "_ORIGIN_TEXT_")
-    rs.ObjectName(originPoint, "_ORIGIN_POINT_")
-
-    #Move geometry to locked origin layer
-    rs.ObjectLayer([circle, line1, line2, originPoint, text], "_ORIGIN_")
-    
     rs.EnableRedraw(True)
 
 )</script>
@@ -1232,7 +1282,7 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 
 '''
 
-#Restore world coordinate
+#Restore Origin
 
 import rhinoscriptsyntax as rs
 
@@ -1270,6 +1320,7 @@ if obj:
             rs.PurgeLayer("_ORIGIN_")
     
     rs.EnableRedraw(True)
+
 )</script>
     </macro_item>
   </macros>
@@ -1298,7 +1349,7 @@ if obj:
       <bitmap_item guid="61624676-c9c5-49bf-ad20-9aa2092d1576" index="20" />
       <bitmap_item guid="85a60542-9518-495a-80eb-1e3ee6470955" index="21" />
       <bitmap>iVBORw0KGgoAAAANSUhEUgAAABAAAAFgCAYAAACypvkUAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
-jwv8YQUAAAAJcEhZcwAADsAAAA7AAWrWiQkAAAITSURBVHhe7dNBSBRRGMDxR1RI14Kgc3Sr6BAF
+jwv8YQUAAAAJcEhZcwAADrwAAA68AZW8ckkAAAITSURBVHhe7dNBSBRRGMDxR1RI14Kgc3Sr6BAF
 3Tp0r3uXCi91E7wEauZoe7AOum1lVAcLEzwEJgxa5gYlmVS7zray3TrIHqQgS3GZ/ZpvZt9rdA3s
 1uH/g4+d/eZ937x5740BAAAAAAAAAAAAAAAAAAAAAAAAAAAAgP9F3XQfDY2XrZnuz+vGW9XQa83p
 vcawZmI6W6JBuaggFOPJVqH3QtNzR8c2yhJJcc90fVefhC03pL6zr6lYc3pfr6MHTW9ook/WG0ue
@@ -1334,7 +1385,7 @@ AAAASUVORK5CYII=</bitmap>
       <bitmap_item guid="61624676-c9c5-49bf-ad20-9aa2092d1576" index="20" />
       <bitmap_item guid="85a60542-9518-495a-80eb-1e3ee6470955" index="21" />
       <bitmap>iVBORw0KGgoAAAANSUhEUgAAABgAAAIQCAYAAACbu668AAAAAXNSR0IArs4c6QAAAARnQU1BAACx
-jwv8YQUAAAAJcEhZcwAADsAAAA7AAWrWiQkAAARqSURBVHhe7dR7TJV1HMfxczwg94D0xBRCcCKI
+jwv8YQUAAAAJcEhZcwAADrwAAA68AZW8ckkAAARqSURBVHhe7dR7TJV1HMfxczwg94D0xBRCcCKI
 AsISYrC0OSBJ2BLkpnKRZM2prQhMAeOPmqSoiCwdLUPQSG5WzGyiwmCLvHRZNHA1/SNXbUkxLir3
 T9/febithZ2Wf/jH57W9t4fzPM/ve57n4Tw6IiIiIiIiIiIiIiIiInq8WUjxUpTpr0csfJ6Vbd3r
 a2OQFhw+aNDpjstnPtqu/8fd0mAoiV3md7d1Wx5QcwXDF6/hXHYh1izyuSP7d0vzTUf+R07SjrBF
@@ -1380,7 +1431,7 @@ iIiIiIiIiIiIiIiIiIjocaPT/QVY/DF2EOaaVgAAAABJRU5ErkJggg==</bitmap>
       <bitmap_item guid="61624676-c9c5-49bf-ad20-9aa2092d1576" index="20" />
       <bitmap_item guid="85a60542-9518-495a-80eb-1e3ee6470955" index="21" />
       <bitmap>iVBORw0KGgoAAAANSUhEUgAAACAAAALACAYAAADyoXBfAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
-jwv8YQUAAAAJcEhZcwAADsAAAA7AAWrWiQkAAEA0SURBVHhe7X0HnBRF9v/O9OSZDSy7wGZ2gWVZ
+jwv8YQUAAAAJcEhZcwAADrwAAA68AZW8ckkAAEA0SURBVHhe7X0HnBRF9v/O9OSZDSy7wGZ2gWVZ
 yWHJGclIzgICgkRJAhKUIGAGURGRaELFLJjTGe7U80z3O88cMACC5NnI7rz/+9ZMDz0zPXFnl7v7
 7/fDl+3prq73urq6ul51vVcxNYgyjMzuTI34Vc0wxurNb8UaTeXJ5rgv+Xcr5+7qAQs3vdk3L7+o
 eMMe2jFiGsWbzMU2o/ERPlbHmaTqYLTp9a/3zs0rLNu4j+iWhwVPr9lB81pfXmyUdOc5zRKmQaSO

@@ -31,7 +31,7 @@ if point:
     vector = rs.VectorCreate((0,0,0),point)
     rs.MoveObjects(allObj,vector)
 
-    #Draw origin marker
+    #Draw origin marker`
     circle = rs.AddCircle(originPoint,1)
     quads = rs.EllipseQuadPoints(circle)
     line1 = rs.AddLine(quads[0],quads[1])
