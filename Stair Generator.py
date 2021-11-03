@@ -664,8 +664,9 @@ else:
 
 #Get stair width
 line = rs.GetLine(mode=1,message1="Pick two points to define top step width")
-userCurve = rs.AddCurve(line)
-userVector = rs.VectorUnitize(rs.VectorCreate(line[1],line[0]))
+line[1].Z = line[0].Z
+userCurve = rs.AddLine([line[0].X, line[0].Y, line[0].Z], [line[1].X, line[1].Y, line[0].Z])
+userVector = rs.VectorUnitize(rs.VectorCreate((line[1].X, line[1].Y, line[0].Z), (line[0].X, line[0].Y, line[0].Z)))
 rs.ObjectName(userCurve, "xAbJgNV6^bz6azN&6E$Q^WeX$Dd^vygCz5z7Hmynb5")
 
 # The script that will be using the dialog.
