@@ -9,17 +9,17 @@
   </extend_rhino_menus>
   <menus />
   <tool_bar_groups>
-    <tool_bar_group guid="4830f6fe-5b84-4155-9c85-a8ae8942b65e" dock_bar_guid32="00000000-0000-0000-0000-000000000000" dock_bar_guid64="92d659a2-6f79-4f2b-8ba6-2670971a2e86" active_tool_bar_group="c0ddb15f-03f5-4dff-86f7-7745ab4674f7" single_file="False" hide_single_tab="True" point_floating="577,387">
+    <tool_bar_group guid="1067bebe-88d0-4b21-ab8b-9c9b8b4860e0" dock_bar_guid32="00000000-0000-0000-0000-000000000000" dock_bar_guid64="764b7a3c-c626-4771-bff3-c47aa63fd0b1" active_tool_bar_group="d51f71b9-4a55-481d-a2ed-9bbc51b0bc7e" single_file="False" hide_single_tab="False" point_floating="1471,361">
       <text>
         <locale_1033>LandArchTools</locale_1033>
       </text>
-      <tool_bar_group_item guid="c0ddb15f-03f5-4dff-86f7-7745ab4674f7" major_version="1" minor_version="1">
+      <tool_bar_group_item guid="d51f71b9-4a55-481d-a2ed-9bbc51b0bc7e" major_version="1" minor_version="1">
         <text>
           <locale_1033>LandArchTools</locale_1033>
         </text>
         <tool_bar_id>d8dc19cb-56d8-4f50-b015-76d6b2e6fb1f</tool_bar_id>
       </tool_bar_group_item>
-      <dock_bar_info dpi_scale="100" dock_bar="False" docking="True" horz="False" visible="True" floating="True" mru_float_style="8192" bar_id="59480" mru_width="868" point_pos="-2,-2" float_point="577,387" rect_mru_dock_pos="0,574,35,960" dock_location_u="59420" dock_location="left" float_size="640,62" />
+      <dock_bar_info dpi_scale="100" dock_bar="False" docking="True" horz="False" visible="True" floating="True" mru_float_style="8192" bar_id="59476" mru_width="868" point_pos="-2,-2" float_point="1471,361" rect_mru_dock_pos="0,0,0,0" dock_location_u="59419" dock_location="top" float_size="713,62" />
     </tool_bar_group>
   </tool_bar_groups>
   <tool_bars>
@@ -39,6 +39,9 @@
       <tool_bar_item guid="e021088f-3f01-4ec2-b7f8-7e141567db90">
         <left_macro_id>4211923b-f22f-4ab1-8745-e05f836d0bf8</left_macro_id>
       </tool_bar_item>
+      <tool_bar_item guid="3c553441-e8b2-4259-9aae-3907facf4694">
+        <left_macro_id>6beb1246-fc82-4dfc-bb54-1188098f1029</left_macro_id>
+      </tool_bar_item>
       <tool_bar_item guid="70198725-314c-45f3-be45-e35fdd8208df">
         <left_macro_id>ef338e36-b652-464e-9f92-9d8c746720f3</left_macro_id>
       </tool_bar_item>
@@ -56,6 +59,9 @@
       </tool_bar_item>
       <tool_bar_item guid="9d56baae-f374-4ee4-8917-a3170cadab27">
         <left_macro_id>161b2a13-4700-4945-9dae-25c70928152b</left_macro_id>
+      </tool_bar_item>
+      <tool_bar_item guid="7d72bb3e-1647-4aea-b42b-f69fcedf7f4d">
+        <left_macro_id>05291655-fced-47a7-a765-dc4637a8e6f2</left_macro_id>
       </tool_bar_item>
       <tool_bar_item guid="5598f291-9102-4785-ad1f-89305c097143">
         <left_macro_id>4055eaa6-4427-427c-b6a5-e6cdbac914c2</left_macro_id>
@@ -1369,6 +1375,788 @@ rs.AddTextDot("E " + str(pointX) + " N " + str(pointY) + " Z " + str(pointZ),poi
 rs.ClipboardText(coord)
 )</script>
     </macro_item>
+    <macro_item guid="05291655-fced-47a7-a765-dc4637a8e6f2" bitmap_id="e665d72d-4470-43f1-9a74-a7f1a96e66ba">
+      <text>
+        <locale_1033>Macro 21</locale_1033>
+      </text>
+      <tooltip>
+        <locale_1033>Stair Generator</locale_1033>
+      </tooltip>
+      <button_text>
+        <locale_1033>Stair Generator</locale_1033>
+      </button_text>
+      <script>! _-RunPythonScript (
+# Imports
+import System
+import Rhino.UI
+import Eto.Drawing as drawing
+import Eto.Forms as forms
+import rhinoscriptsyntax as rs
+
+################################################################################
+
+# SampleEtoRoomNumber dialog class
+class StairGenDialog(forms.Dialog[bool]):
+
+    # Dialog box Class initializer
+    def __init__(self):
+        # Initialize dialog box
+        self.Title = 'LandArchTools: Stair Generator'
+        self.Padding = drawing.Padding(10)
+        self.Resizable = False
+        self.Closing += self.OnFormClosed
+################################################################################
+        
+        # Create controls for the dialog
+        #Stair gen label
+        self.stairGenLabel = forms.Label(Text = 'STAIR GENERATOR')
+        
+        #Gen Handrail label
+        self.genStairLabel = forms.Label(Text = 'Generate Stair?:')
+        #Gen Handrail control
+        self.genStairBool = forms.CheckBox()
+        self.genStairBool.Checked = False
+        self.genStairBool.CheckedChanged += self.stairGen
+        
+        #Number of Steps Label
+        self.numStepsLabel = forms.Label(Text = 'Number of steps:')
+        #Number of Steps control
+        self.numStepsC = forms.NumericStepper()
+        self.numStepsC.DecimalPlaces = 0
+        self.numStepsC.Increment = 1
+        self.numStepsC.MaxValue = 100
+        self.numStepsC.MinValue = 2
+        self.numStepsC.Value = 3
+        self.numStepsC.ValueChanged += self.stairGen
+        self.numStepsC.ValueChanged += self.handrailGen
+
+        
+        #Tread label
+        self.treadLabel = forms.Label(Text = 'Tread (mm):')
+        #Tread length control
+        self.treadC = forms.NumericStepper()
+        self.treadC.DecimalPlaces = 0
+        self.treadC.Increment = 1
+        self.treadC.MaxValue = 1000
+        self.treadC.MinValue = 1
+        self.treadC.Value = 300
+        self.treadC.ValueChanged += self.stairGen
+        self.treadC.ValueChanged += self.handrailGen
+        
+        #Riser Label
+        self.riserLabel = forms.Label(Text = 'Riser (mm):')
+        #Tread length control
+        self.riserC = forms.NumericStepper()
+        self.riserC.DecimalPlaces = 0
+        self.riserC.Increment = 1
+        self.riserC.MaxValue = 1000
+        self.riserC.MinValue = 1
+        self.riserC.Value = 150
+        self.riserC.ValueChanged += self.stairGen
+        self.riserC.ValueChanged += self.handrailGen
+        
+        #Flip label
+        self.flipLabel = forms.Label(Text = 'Flip direction of stairs:')
+        #Flip control
+        self.flipC = forms.CheckBox()
+        self.flipC.CheckedChanged += self.stairGen
+        self.flipC.CheckedChanged += self.handrailGen
+        
+        ###########################################
+        #Handrail Gen Label
+        self.handrailGenLabel = forms.Label(Text = 'HANDRAIL GENERATOR')
+        #self.handrailGenLabel.VerticalAlignment.Center
+        
+        #Gen Handrail label
+        self.genHandrailLabel = forms.Label(Text = 'Generate Handrail?:')
+        #Gen Handrail control
+        self.genHandrailBool = forms.CheckBox()
+        self.genHandrailBool.Checked = False
+        self.genHandrailBool.CheckedChanged += self.handrailGen
+        
+        #Handrail Type Label
+        self.handrailTypeLabel = forms.Label(Text = 'Handrail type:')
+        #Handrail Type Dropdown
+        self.handrailTypeC = forms.DropDown()
+        self.handrailTypeC.DataStore = ['180 No Return', '180 Full Return', 'Ground Triangular Return', 'Ground Return', 'Wall Return']
+        self.handrailTypeC.SelectedIndex = 0
+        self.handrailTypeC.SelectedIndexChanged += self.handrailGen
+        
+        #Handrail Height Label
+        self.handrailHeightLabel = forms.Label(Text = 'Handrail height (mm):')
+        #Handrail Height control
+        self.handrailHeightC = forms.NumericStepper()
+        self.handrailHeightC.DecimalPlaces = 0
+        self.handrailHeightC.Increment = 1
+        self.handrailHeightC.MaxValue = 5000
+        self.handrailHeightC.MinValue = 100
+        self.handrailHeightC.Value = 900
+        self.handrailHeightC.ValueChanged += self.handrailGen
+        
+        #Handrail offset label
+        self.handrailOffsetLabel = forms.Label(Text = 'Handrail offset from edges (mm):')
+        #Handrail offset control
+        self.handrailOffsetC = forms.NumericStepper()
+        self.handrailOffsetC.DecimalPlaces = 0
+        self.handrailOffsetC.Increment = 1
+        self.handrailOffsetC.MaxValue = 5000
+        self.handrailOffsetC.MinValue = 50
+        self.handrailOffsetC.Value = 150
+        self.handrailOffsetC.ValueChanged += self.handrailGen
+        
+        #Handrail extension Label
+        self.handrailExtensionLabel = forms.Label(Text = 'Handrail extension (mm):')
+        #Handrail extension Control
+        self.handrailExtensionC = forms.NumericStepper()
+        self.handrailExtensionC.DecimalPlaces = 0
+        self.handrailExtensionC.Increment = 1
+        self.handrailExtensionC.MaxValue = 5000
+        self.handrailExtensionC.MinValue = 300
+        self.handrailExtensionC.Value = 300
+        self.handrailExtensionC.ValueChanged += self.handrailGen
+        
+        #Handrail Diameter Label
+        self.handrailDiameterLabel = forms.Label(Text = 'Handrail diameter (mm):')
+        #Handrail Diameter control
+        self.handrailDiameterC = forms.NumericStepper()
+        self.handrailDiameterC.DecimalPlaces = 0
+        self.handrailDiameterC.Increment = 1
+        self.handrailDiameterC.MaxValue = 50
+        self.handrailDiameterC.MinValue = 30
+        self.handrailDiameterC.Value = 30
+        self.handrailDiameterC.ValueChanged += self.handrailGen
+        
+        # Create the default button
+        self.DefaultButton = forms.Button(Text = 'OK')
+        self.DefaultButton.Click += self.OnOKButtonClick
+
+        # Create the abort button
+        self.AbortButton = forms.Button(Text = 'Cancel')
+        self.AbortButton.Click += self.OnCloseButtonClick
+
+################################################################################
+
+        # Create a table layout and add all the controls
+        layout = forms.DynamicLayout()
+        layout.Spacing = drawing.Size(5, 5)
+
+        layout.AddRow(None)
+        layout.AddRow(self.stairGenLabel)
+        layout.AddRow(None)
+        layout.AddRow(None)
+        layout.AddRow(self.genStairLabel, self.genStairBool)
+        layout.AddRow(self.numStepsLabel, self.numStepsC)
+        layout.AddRow(self.treadLabel, self.treadC)
+        layout.AddRow(self.riserLabel, self.riserC)
+        layout.AddRow(self.flipLabel, self.flipC)
+        layout.AddRow(None)
+        layout.AddRow(None)
+        layout.AddRow(None)
+        layout.AddRow(None)
+        layout.AddRow(self.handrailGenLabel)
+        layout.AddRow(None)
+        layout.AddRow(None)
+        layout.AddRow(self.genHandrailLabel, self.genHandrailBool)
+        layout.AddRow(self.handrailTypeLabel, self.handrailTypeC)
+        layout.AddRow(self.handrailHeightLabel, self.handrailHeightC)
+        layout.AddRow(self.handrailOffsetLabel, self.handrailOffsetC)
+        layout.AddRow(self.handrailExtensionLabel, self.handrailExtensionC)
+        layout.AddRow(self.handrailDiameterLabel, self.handrailDiameterC)
+        layout.AddRow(self.DefaultButton, self.AbortButton)
+        
+        # Set the dialog content
+        self.Content = layout
+
+################################################################################
+
+    #Stair Generator Method
+    def stairGen(self, sender, e):
+
+        # Variables and defaults
+        tread = int(self.treadC.Value) * scale
+        riser = int(self.riserC.Value) * scale
+        numSteps = int(self.numStepsC.Value)
+        flip = self.flipC.Checked
+        stairLength = tread * numSteps
+        genStair = self.genStairBool.Checked
+        curveList = []
+        junkList = []
+
+        #get user line for top width of stair
+        
+        rs.EnableRedraw(False)
+        
+        if genStair == False:
+            iteration = rs.ObjectsByName("GdC9V&amp;^a^rGZZNgiWFH&amp;aTRQLLscu*9AZCmhk8t2!a")
+            if iteration:
+                rs.DeleteObject(iteration)
+                rs.EnableRedraw(True)
+                
+        if genStair == True:
+            #Delete any existing iteration
+            iteration = rs.ObjectsByName("GdC9V&amp;^a^rGZZNgiWFH&amp;aTRQLLscu*9AZCmhk8t2!a")
+            if iteration:
+                rs.DeleteObject(iteration)
+            
+            topLine = rs.AddLine(line[0],line[1])
+            topPoint = line[0]
+            stepPoint = topPoint
+            
+            #get perp line - length of stair
+            t = rs.CurveClosestPoint(topLine, topPoint)
+            planeNormal = rs.CurveNormal(topLine)
+            tangent = rs.CurveTangent(topLine, t)
+            curveNormal = rs.VectorCrossProduct(planeNormal, tangent)
+            
+            # Get vector
+            vectorRun = rs.VectorCreate(topPoint, topPoint + curveNormal * tread)
+            
+            # Bool flip direction of stair (add bool option in GUI)
+            if flip == True:
+                vector = rs.VectorReverse(vectorRun)
+            else:
+                vector = vectorRun
+                
+            # loop through number of steps to gen step curve
+            for i in range(numSteps):
+                pt01 = rs.AddPoint(stepPoint)
+                pt02 = rs.CopyObject(pt01, vector)
+                pt03 = rs.CopyObject(pt02, [0,0,riser*-1])
+                curve = rs.AddPolyline([pt01,pt02,pt03])
+                curveList.append(curve)
+                stepPoint = rs.CurveEndPoint(curve)
+                rs.DeleteObjects([pt01,pt02,pt03])
+            
+            # Extrude stair curve to full width
+            joinedCurve = rs.JoinCurves(curveList)
+            bottomPoint = rs.CopyObject(line[0], [0,0,(riser*numSteps)*-1])
+            stairBottom = rs.CurveEndPoint(joinedCurve)
+            curve = rs.AddPolyline([line[0],bottomPoint,stairBottom])
+            handRailCurve = rs.AddCurve([bottomPoint,stairBottom]) #createhandrail curve and return it
+            curveList.append(curve)
+            joinedCurves = rs.JoinCurves(curveList)
+            stair = rs.ExtrudeCurveStraight(joinedCurves, line[0], line[1])
+            rs.CapPlanarHoles(stair)
+            #this identifies the generated stair geometry
+            rs.ObjectName(stair, "GdC9V&amp;^a^rGZZNgiWFH&amp;aTRQLLscu*9AZCmhk8t2!a") 
+            
+            # clean up leftover geometry
+            junkList.extend([bottomPoint,joinedCurve,joinedCurves, topLine, handRailCurve])
+            junkList = junkList + curveList
+            rs.DeleteObjects(junkList)
+        
+            rs.EnableRedraw(True)
+
+    # Handrail Generator Method
+    # hType, curve, handrailOffset, tread, riser, numSteps, scale, vectorRun, hHeight, hEndLength, pipeDiameter,
+    def handrailGen(self, sender, e):
+        
+        flip = self.flipC.Checked
+        hType = self.handrailTypeC.SelectedIndex
+        handrailOffset = int(self.handrailOffsetC.Value) * scale
+        tread = int(self.treadC.Value) * scale
+        riser = int(self.riserC.Value) * scale
+        numSteps = int(self.numStepsC.Value)
+        hEndLength = int(self.handrailExtensionC.Value) * scale
+        pipeDiameter = int(self.handrailDiameterC.Value) * scale
+        hHeight = int(self.handrailHeightC.Value) * scale
+        topLine = rs.AddLine(line[0],line[1])
+        rs.ObjectName(topLine, "BC6#DT5LCQX*#8r97Tquf5gNF")
+        topPoint = line[0]
+        genHandrail = self.genHandrailBool.Checked
+
+        rs.EnableRedraw(False)
+        if genHandrail == False:
+            iteration = rs.ObjectsByName("qe7g&amp;G5LzXEvbudtPT8xCxQbisusFVqCPqMsiHK2jc")
+            if iteration:
+                rs.DeleteObjects(iteration)
+                rs.EnableRedraw(True)
+                
+        if genHandrail == True:
+            #Delete any existing iteration
+            iteration = rs.ObjectsByName("qe7g&amp;G5LzXEvbudtPT8xCxQbisusFVqCPqMsiHK2jc")
+            if iteration:
+                rs.DeleteObjects(iteration)
+            
+            #get perp line - length of stair
+            t = rs.CurveClosestPoint(topLine, topPoint)
+            planeNormal = rs.CurveNormal(topLine)
+            tangent = rs.CurveTangent(topLine, t)
+            
+            if flip == False:
+                curveNormal = rs.VectorCrossProduct(planeNormal, tangent)
+            else:
+                curveNormal = rs.VectorReverse(rs.VectorCrossProduct(planeNormal, tangent))
+            
+            # Get guide curve
+            scaledV = rs.VectorReverse(rs.VectorScale(curveNormal, tread*numSteps))
+            ptGuide1 = rs.AddPoint(line[0])
+            ptGuide2 = rs.CopyObject(ptGuide1, scaledV)
+            rs.MoveObjects([ptGuide1, ptGuide2], [0,0,(riser*numSteps)*-1])
+            curve = rs.AddCurve([ptGuide1, ptGuide2])
+            
+            #Get vector for step run
+            vectorRun = rs.VectorCreate(topPoint, topPoint + curveNormal * tread)
+            
+            # Setup curves for handrail
+            curve1 = curve
+            curve2 = rs.MoveObject(rs.CopyObject(curve1, rs.VectorCreate(line[1], 
+            rs.CurveStartPoint(curve1))), [0,0,(riser * numSteps)*-1])
+            midPoint = rs.CurveMidPoint(userCurve)
+            
+            # Main slanted handrail curve
+            pt1 = rs.MoveObject(rs.MoveObject(rs.CurveStartPoint(curve1), vectorRun), [0,0,hHeight + (riser*numSteps)])
+            pt2 = rs.MoveObject(rs.MoveObject(rs.CurveEndPoint(curve1), vectorRun), [0,0,hHeight])
+            mainCurve = rs.AddCurve([pt1, pt2])
+            
+            # Top leveled handrail curve at 300mm standard DDA
+            pt3 = rs.CopyObject(pt1, rs.VectorReverse(rs.VectorScale(rs.VectorUnitize(vectorRun), hEndLength)))
+            topCurve = rs.AddCurve([pt1, pt3])
+            
+            # Bottom leveled handrail curve at 300mm standard DDA
+            pt4 = rs.CopyObject(pt2, rs.VectorScale(rs.VectorUnitize(vectorRun), hEndLength))
+            bottomCurve = rs.AddCurve([pt2, pt4])
+            
+            # Start list of construction geometry for later cleanup
+            hGeoList = [curve1, curve2, pt1, pt2, mainCurve, pt3, topCurve, pt4, bottomCurve, ptGuide1, ptGuide2, curve, topLine]
+            
+            # IF STATEMENTS FOR HANDRAIL TYPE
+            
+            # 1 180 degree, no return
+            if hType == 0:
+                
+                # Lower Handrail return
+                hpt1 = rs.CopyObject(pt4, [0,0,(pipeDiameter * 2)* -1])
+                hpt2 = rs.MoveObject(rs.CopyObject(pt4, [0,0,pipeDiameter * -1]), rs.VectorScale(rs.VectorUnitize(vectorRun), pipeDiameter))
+                lowerH = rs.AddArc3Pt(pt4, hpt1, hpt2)
+                
+                # Upper Handrail return
+                hpt3 = rs.CopyObject(pt3, [0,0,(pipeDiameter * 2)* -1])
+                hpt4 = rs.MoveObject(rs.CopyObject(pt3, [0,0,pipeDiameter * -1]), rs.VectorReverse(rs.VectorScale(rs.VectorUnitize(vectorRun), pipeDiameter)))
+                upperH = rs.AddArc3Pt(pt3, hpt3, hpt4)
+                
+                # Draw leg upper
+                lpt1 = rs.CurveMidPoint(topCurve)
+                lpt2 = rs.CopyObject(lpt1, [0,0,hHeight*-1])
+                lCurveUpper = rs.AddCurve([lpt1, lpt2])
+                
+                # Draw leg lower
+                lpt3 = rs.CopyObject(pt2, [0,0,hHeight*-1])
+                lCurveLower = rs.AddCurve([pt2,lpt3])
+                
+                # Make vectors to move handrails into place
+                moveShort = rs.VectorScale(userVector, handrailOffset)
+                moveLong = rs.VectorScale(userVector, rs.CurveLength(userCurve) - (handrailOffset*2))
+                
+                # Join, offset skeleton
+                hCurve = rs.JoinCurves([mainCurve, topCurve, bottomCurve, lowerH, upperH])
+                hCurve1 = rs.CopyObject(hCurve, moveShort)
+                lCurveUpper1 = rs.CopyObject(lCurveUpper, moveShort)
+                lCurveLower1 = rs.CopyObject(lCurveLower, moveShort)
+                
+                # Pipe skeleton
+                pipe1 = rs.AddPipe(hCurve1,0, pipeDiameter/2,blend_type=0, cap = 1)
+                pipe2 = rs.AddPipe(lCurveUpper1,0, pipeDiameter/2,blend_type=0, cap = 1)
+                pipe3 = rs.AddPipe(lCurveLower1,0, pipeDiameter/2,blend_type=0, cap = 1)
+                
+                #form list of generated geo
+                handrailGeo1 = [pipe1, pipe2, pipe3]
+
+                # Name geo for deletion
+                for i in handrailGeo1:
+                    rs.ObjectName(i, "qe7g&amp;G5LzXEvbudtPT8xCxQbisusFVqCPqMsiHK2jc")
+                #copy
+                handrailGeo2 = rs.CopyObjects(handrailGeo1, moveLong)
+                
+                # Cleanup construction linework
+                hGeoList.extend([hpt1, hpt2, lowerH, hpt3, hpt4, upperH, lpt2, lpt3, lCurveLower, hCurve, hCurve1,
+                lCurveUpper1, lCurveLower1, lCurveUpper])
+                rs.DeleteObjects(hGeoList)
+                
+                rs.EnableRedraw(True)
+        
+            # 2 180 degree, full return
+            if hType == 1:
+                
+                rs.EnableRedraw(False)
+                
+                # Lower handrail return
+                hpt1 = rs.CopyObject(pt4, [0,0,(hEndLength/3)*-2])
+                hpt2 = rs.CopyObject(pt2, [0,0,(hEndLength/3)*-2])
+                hCurve11 = rs.AddPolyline([pt4, hpt1, hpt2])
+                lowerH = rs.JoinCurves([bottomCurve, hCurve11])
+                
+                # Upper handrail return
+                hpt3 = rs.CopyObject(pt3, [0,0,(hEndLength/3)*-2])
+                hpt4 = rs.CopyObject(rs.CurveMidPoint(topCurve), [0,0,(hEndLength/3)*-2])
+                hCurve2 = rs.AddPolyline([pt3, hpt3, hpt4])
+                upperH = rs.JoinCurves([topCurve, hCurve2])
+                
+                # Draw leg upper
+                lpt1 = rs.CurveMidPoint(topCurve)
+                lpt2 = rs.CopyObject(lpt1, [0,0,hHeight*-1])
+                lCurveUpper = rs.AddCurve([lpt1, lpt2])
+                
+                # Draw leg lower
+                lpt3 = rs.CopyObject(pt2, [0,0,hHeight*-1])
+                lCurveLower = rs.AddCurve([pt2,lpt3])
+                
+                # Make vectors to move handrails into place
+                moveShort = rs.VectorScale(userVector, handrailOffset)
+                moveLong = rs.VectorScale(userVector, rs.CurveLength(userCurve) - (handrailOffset*2))
+                
+                # Pipe skeleton move
+                hCurve1 = rs.JoinCurves([lowerH, upperH, mainCurve])
+                rs.MoveObjects([hCurve1, lCurveUpper, lCurveLower], moveShort)
+                
+                #Pipe
+                pipe1 = rs.AddPipe(hCurve1,0, pipeDiameter/2, blend_type=0, cap = 1)
+                pipe2 = rs.AddPipe(lCurveUpper,0, pipeDiameter/2, blend_type=0, cap = 1)
+                pipe3 = rs.AddPipe(lCurveLower,0, pipeDiameter/2, blend_type=0, cap = 1)
+                
+                handrailGeo1 = [pipe1, pipe2, pipe3]
+
+                # Name geo for deletion
+                for i in handrailGeo1:
+                    rs.ObjectName(i, "qe7g&amp;G5LzXEvbudtPT8xCxQbisusFVqCPqMsiHK2jc")
+                
+                # Move and copy into position
+                handrailGeo2 = rs.CopyObjects(handrailGeo1, moveLong)
+                
+                # Cleanup
+                hGeoList.extend([hpt1, hpt2, hCurve11, lowerH, hpt3, hpt4, hCurve2, upperH, lpt2, lCurveUpper, lpt3,
+                lCurveLower, hCurve1])
+                rs.DeleteObjects(hGeoList)
+                
+                rs.EnableRedraw(True)
+                
+            # 3 Ground triangle return
+            if hType == 2:
+                
+                rs.EnableRedraw(False)
+                
+                # Draw leg upper
+                lpt1 = rs.CurveMidPoint(topCurve)
+                lpt2 = rs.CopyObject(lpt1, [0,0,hHeight*-1])
+                lCurveUpper = rs.AddCurve([lpt1, lpt2])
+                
+                # Draw leg lower
+                lpt3 = rs.CopyObject(pt2, [0,0,hHeight*-1])
+                lCurveLower = rs.AddCurve([pt2,lpt3])
+                
+                # Lower Return
+                lowerH = rs.AddCurve([pt4, lpt3])
+                
+                # Upper Return
+                upperH = rs.AddCurve([pt3, lpt2])
+                
+                # Make vectors to move handrails into place
+                moveShort = rs.VectorScale(userVector, handrailOffset)
+                moveLong = rs.VectorScale(userVector, rs.CurveLength(userCurve) - (handrailOffset*2))
+                
+                # Join Curves and move
+                hCurve = rs.JoinCurves([mainCurve, topCurve, bottomCurve, lowerH, upperH])
+                rs.MoveObjects([hCurve, lCurveUpper, lCurveLower], moveShort)
+                
+                # pipe
+                pipe1 = rs.AddPipe(hCurve,0, pipeDiameter/2, blend_type=0, cap = 1)
+                pipe2 = rs.AddPipe(lCurveUpper,0, pipeDiameter/2, blend_type=0, cap = 1)
+                pipe3 = rs.AddPipe(lCurveLower,0, pipeDiameter/2, blend_type=0, cap = 1)
+                
+                handrailGeo1 = [pipe1, pipe2, pipe3]
+                
+                # Name geo for deletion
+                for i in handrailGeo1:
+                    rs.ObjectName(i, "qe7g&amp;G5LzXEvbudtPT8xCxQbisusFVqCPqMsiHK2jc")
+                
+                # move and copy into place
+                handrailGeo2 = rs.CopyObjects(handrailGeo1, moveLong)
+                
+                # Cleanup
+                hGeoList.extend([lpt2, lCurveUpper, lpt3, lCurveLower, lowerH, upperH, hCurve, topLine])
+                rs.DeleteObjects(hGeoList)
+                
+                rs.EnableRedraw(True)
+                
+            # 4 Ground return
+            
+            if hType == 3:
+                
+                rs.EnableRedraw(False)
+                
+                # Draw leg upper
+                lpt1 = rs.CurveMidPoint(topCurve)
+                lpt2 = rs.CopyObject(lpt1, [0,0,hHeight*-1])
+                lCurveUpper = rs.AddCurve([lpt1, lpt2])
+                
+                # Draw leg lower
+                lpt3 = rs.CopyObject(pt2, [0,0,hHeight*-1])
+                lCurveLower = rs.AddCurve([pt2,lpt3])
+                
+                # Lower Return
+                hpt1 = rs.CopyObject(pt4, [0,0,hHeight*-1])
+                hCurve1 = rs.AddCurve([pt4, hpt1])
+                
+                # Upper Return
+                hpt2 = rs.CopyObject(pt3, [0,0,hHeight*-1])
+                hCurve2 = rs.AddCurve([pt3, hpt2])
+                
+                # Join curves
+                hCurve = rs.JoinCurves([mainCurve, topCurve, bottomCurve, hCurve1, hCurve2])
+                
+                # Get Vectors
+                moveShort = rs.VectorScale(userVector, handrailOffset)
+                moveLong = rs.VectorScale(userVector, rs.CurveLength(userCurve) - (handrailOffset*2))
+                
+                #move
+                rs.MoveObjects([hCurve, lCurveUpper, lCurveLower], moveShort)
+                
+                # Pipe
+                pipe1 = rs.AddPipe(hCurve,0, pipeDiameter/2, blend_type=0, cap = 1)
+                pipe2 = rs.AddPipe(lCurveUpper,0, pipeDiameter/2, blend_type=0, cap = 1)
+                pipe3 = rs.AddPipe(lCurveLower,0, pipeDiameter/2, blend_type=0, cap = 1)
+                
+                handrailGeo1 = [pipe1, pipe2, pipe3]
+                
+                # Name geo for deletion
+                for i in handrailGeo1:
+                    rs.ObjectName(i, "qe7g&amp;G5LzXEvbudtPT8xCxQbisusFVqCPqMsiHK2jc")
+                    
+                # move and copy into place
+                handrailGeo2 = rs.CopyObjects(handrailGeo1, moveLong)
+                
+                # Clean up
+                hGeoList.extend([lpt2, lCurveUpper, lpt3, lCurveLower, hpt1, hCurve1, hpt2, hCurve2, hCurve, topLine])
+                rs.DeleteObjects(hGeoList)
+                
+                rs.EnableRedraw(True)
+        
+            # 5 Wall return
+            if hType == 4:
+                
+                rs.EnableRedraw(False)
+                
+                # Draw leg upper
+                lpt1 = rs.CurveMidPoint(topCurve)
+                lpt2 = rs.CopyObject(lpt1, [0,0,hHeight*-1])
+                lCurveUpper = rs.AddCurve([lpt1, lpt2])
+                
+                # Draw leg lower
+                lpt3 = rs.CopyObject(pt2, [0,0,hHeight*-1])
+                lCurveLower = rs.AddCurve([pt2,lpt3])
+                
+                #get vectors
+                vector1 =  rs.VectorScale(rs.VectorUnitize(rs.VectorReverse(userVector)), handrailOffset)
+                vector2 = rs.VectorScale(userVector, rs.CurveLength(userCurve))
+                
+                # Lower Return
+                hpt1 = rs.CopyObject(pt4, vector1)
+                hCurve1 = rs.AddCurve([pt4, hpt1])
+                
+                # Upper Return
+                hpt2 = rs.CopyObject(pt3, vector1)
+                hCurve2 = rs.AddCurve([pt3, hpt2])
+                
+                # Join main curves
+                hCurveMain1 = rs.JoinCurves([mainCurve, topCurve, bottomCurve])
+                
+                # Get Vectors
+                moveShort = rs.VectorScale(userVector, handrailOffset)
+                moveLong = rs.VectorScale(userVector, rs.CurveLength(userCurve) - handrailOffset)
+                
+                # Copy hanrail 2
+                hCurveMain2 = rs.CopyObject(hCurveMain1, moveLong)
+                hCurve3 = rs.CopyObject(hCurve1, vector2)
+                hCurve4 = rs.CopyObject(hCurve2, vector2)
+                lCurveUpper2 = rs.CopyObject(lCurveUpper, moveLong)
+                lCurveLower2 = rs.CopyObject(lCurveLower, moveLong)
+                
+                # Join curves
+                hCurveJoined1 = rs.JoinCurves([hCurve1, hCurve2, hCurveMain1])
+                hCurveJoined2 = rs.JoinCurves([hCurveMain2, hCurve3, hCurve4,])
+                
+                # Pipe
+                pipe1 = rs.AddPipe(hCurveJoined1,0, pipeDiameter/2, blend_type=0, cap = 1)
+                pipe2 = rs.AddPipe(lCurveLower,0, pipeDiameter/2, blend_type=0, cap = 1)
+                pipe3 = rs.AddPipe(lCurveUpper,0, pipeDiameter/2, blend_type=0, cap = 1)
+                pipe4 = rs.AddPipe(hCurveJoined2,0, pipeDiameter/2, blend_type=0, cap = 1)
+                pipe5 = rs.AddPipe(lCurveUpper2,0, pipeDiameter/2, blend_type=0, cap = 1)
+                pipe6 = rs.AddPipe(lCurveLower2,0, pipeDiameter/2, blend_type=0, cap = 1)
+                
+                handrailGeo1 = [pipe1, pipe2, pipe3, pipe3, pipe4, pipe5, pipe6]
+                
+                # Name geo for deletion
+                for i in handrailGeo1:
+                    rs.ObjectName(i, "qe7g&amp;G5LzXEvbudtPT8xCxQbisusFVqCPqMsiHK2jc")
+                
+                # Move handrail 1 into place
+                rs.MoveObjects([pipe1, pipe2, pipe3], moveShort)
+                
+                # Cleanup
+                hGeoList.extend([lpt2, lCurveUpper, lpt3, lCurveLower, hpt1, hCurve1, hpt2, hCurve2, hCurveMain1, hCurveMain2, hCurve3,
+                hCurve4, lCurveUpper2, lCurveLower2, hCurveJoined1, hCurveJoined2])
+                rs.DeleteObjects(hGeoList)
+                
+                rs.EnableRedraw(True)
+
+    # Close button click handler
+    def OnCloseButtonClick(self, sender, e):
+        generatedStair = rs.ObjectsByName("GdC9V&amp;^a^rGZZNgiWFH&amp;aTRQLLscu*9AZCmhk8t2!a")
+        generatedHandrail = rs.ObjectsByName("qe7g&amp;G5LzXEvbudtPT8xCxQbisusFVqCPqMsiHK2jc")
+        rs.DeleteObjects(rs.ObjectsByName("xAbJgNV6^bz6azN&amp;6E$Q^WeX$Dd^vygCz5z7Hmynb5"))
+        rs.DeleteObjects(rs.ObjectsByName("BC6#DT5LCQX*#8r97Tquf5gNF"))
+        if generatedStair:
+            rs.DeleteObject(generatedStair)
+        if generatedHandrail:
+            rs.DeleteObjects(generatedHandrail)
+        self.Close(False)
+
+    # close x button handler
+    def OnFormClosed(self, sender, e):
+        generatedStair = rs.ObjectsByName("GdC9V&amp;^a^rGZZNgiWFH&amp;aTRQLLscu*9AZCmhk8t2!a")
+        generatedHandrail = rs.ObjectsByName("qe7g&amp;G5LzXEvbudtPT8xCxQbisusFVqCPqMsiHK2jc")
+        rs.DeleteObjects(rs.ObjectsByName("xAbJgNV6^bz6azN&amp;6E$Q^WeX$Dd^vygCz5z7Hmynb5"))
+        rs.DeleteObjects(rs.ObjectsByName("BC6#DT5LCQX*#8r97Tquf5gNF"))
+        if generatedStair:
+            rs.DeleteObject(generatedStair)
+        if generatedHandrail:
+            rs.DeleteObjects(generatedHandrail)
+        self.Close(False)
+
+    # OK button click handler
+    def OnOKButtonClick(self, sender, e):
+        #remove object name to avoid deletion
+        generatedStair = rs.ObjectsByName("GdC9V&amp;^a^rGZZNgiWFH&amp;aTRQLLscu*9AZCmhk8t2!a")
+        generatedHandrail = rs.ObjectsByName("qe7g&amp;G5LzXEvbudtPT8xCxQbisusFVqCPqMsiHK2jc")
+        rs.DeleteObjects(rs.ObjectsByName("xAbJgNV6^bz6azN&amp;6E$Q^WeX$Dd^vygCz5z7Hmynb5"))
+        rs.DeleteObjects(rs.ObjectsByName("BC6#DT5LCQX*#8r97Tquf5gNF"))
+        if generatedStair:
+            rs.ObjectName(generatedStair, name="www.landarchtools.com")
+        if generatedHandrail:
+            rs.ObjectName(generatedHandrail, name="www.landarchtools.com")
+
+        self.Close(True)
+
+
+################################################################################
+
+#Get scale factor and abort if not in mm cm or m
+system = rs.UnitSystem()
+if system == 2 or system == 3 or system == 4:
+    scaleFactorDict = {2:1, 3:0.1, 4:0.001}
+    scaleFactor = scaleFactorDict[system]
+    scale = scaleFactor
+else:
+    rs.MessageBox("change document to use mm, cm or m")
+    exit()
+
+#Get stair width
+line = rs.GetLine(mode=1,message1="Pick two points to define top step width")
+line[1].Z = line[0].Z
+userCurve = rs.AddLine([line[0].X, line[0].Y, line[0].Z], [line[1].X, line[1].Y, line[0].Z])
+userVector = rs.VectorUnitize(rs.VectorCreate((line[1].X, line[1].Y, line[0].Z), (line[0].X, line[0].Y, line[0].Z)))
+rs.ObjectName(userCurve, "xAbJgNV6^bz6azN&amp;6E$Q^WeX$Dd^vygCz5z7Hmynb5")
+
+# The script that will be using the dialog.
+def RequestStairGen(): # This will call the eto form and assign it as a daughter window of rhino
+    dialog = StairGenDialog(); # sets the ETO form to dialog variable
+    rc = dialog.ShowModal(Rhino.UI.RhinoEtoApp.MainWindow) # Launches UI as modal daughter of rhino window
+
+
+################################################################################
+
+RequestStairGen()
+)</script>
+    </macro_item>
+    <macro_item guid="6beb1246-fc82-4dfc-bb54-1188098f1029" bitmap_id="0c6dcc76-9701-40e5-a9cb-b791cf15160c">
+      <text>
+        <locale_1033>Macro 22</locale_1033>
+      </text>
+      <tooltip>
+        <locale_1033>Grade Curve</locale_1033>
+      </tooltip>
+      <button_text>
+        <locale_1033>Grade Curve</locale_1033>
+      </button_text>
+      <script>! _-RunPythonScript (
+
+'''
+
+Copyright &lt;2021&gt; &lt;Thomas Chapman&gt;
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+'''
+
+#GRADE CURVE 
+
+import rhinoscriptsyntax as rs
+
+def scale():
+    system = rs.UnitSystem()
+    if system == 2 or system == 3 or system == 4:
+        scaleFactorDict = {2:1, 3:100, 4:1000}
+        scaleFactor = scaleFactorDict[system]
+        return scaleFactor
+
+    if system != 2 or system != 3 or system != 4:
+        return None
+
+
+def main():
+    #If system is not metric, bail.
+    if scale() == None:
+        rs.MessageBox("This tool can only be used in mm, cm or m model units")
+        return None
+    
+    #Set Variables
+    crv = rs.GetObject(message="Get object to grade", filter=4, preselect=True, select=False, custom_filter=None, subobjects=False)
+    if not crv: return
+    grade = rs.GetReal(message="Enter grade number", number=20, minimum=0.001, maximum=None)
+    if not grade: return
+    
+    rs.EnableRedraw(False)
+    
+    #FIND LENGTH OF CURVE AT EACH GRIP POINT
+    rs.EnableObjectGrips(crv)
+    ctrlPts = rs.ObjectGripLocations(crv)
+    crvLengths = []
+    startParam = rs.CurveClosestPoint(crv, ctrlPts[0])
+    
+    for i in ctrlPts:
+        paramNum = rs.CurveClosestPoint(crv, i)
+        CL = (rs.CurveLength(crv, sub_domain=[startParam ,paramNum]))
+        crvLengths.append(CL)
+    
+    #FIND GRADED Z HEIGHT OF GRIP POINT
+    gripHeights = []
+    for i in crvLengths:
+        rise = i / grade
+        gripHeights.append(rise)
+    
+    #EDIT GRIP POINTS WITH NEW Z VALUE
+    newGrips = []
+    gripIndex = 0
+    for i in ctrlPts:
+        newPt = (i.X,i.Y,(i.Z+gripHeights[gripIndex]))
+        newGrips.append(newPt)
+        gripIndex = gripIndex + 1
+    
+    #MODIFY CURVE TO ENTERED GRADE
+    rs.CopyObject(crv)
+    grips = rs.ObjectGripLocations(crv, newGrips)
+    rs.EnableObjectGrips(crv, enable=False)
+    
+    rs.EnableRedraw(True)
+
+#Run Script
+main()
+
+)</script>
+    </macro_item>
   </macros>
   <bitmaps>
     <small_bitmap item_width="16" item_height="16">
@@ -1395,17 +2183,20 @@ rs.ClipboardText(coord)
       <bitmap_item guid="61624676-c9c5-49bf-ad20-9aa2092d1576" index="20" />
       <bitmap_item guid="85a60542-9518-495a-80eb-1e3ee6470955" index="21" />
       <bitmap_item guid="6e502bab-241b-4e5b-ab6e-45895a855e3d" index="22" />
-      <bitmap>iVBORw0KGgoAAAANSUhEUgAAABAAAAFwCAYAAACxcPuPAAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
-AAAOvQAADr0BR/uQrQAAAhRJREFUeF7t0zFoE1EYwPGHqBRXBcFZ3FQcRMHNwV13F5UuuhW6CI3W
-XmuG6tDGqBV1UKkFB6EWjlZrI2ixFjVpYkrcHEqGomC1LeHu8767vOe1qWC3Dv8ffOTy3fu+e/fe
-OwMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAW0Voug8Hxss1TPeXVeMta+i15vRec1grMZm2aFA+KgjE
-eLJR6L3A9NzWsc2yRFLcMxnu6JOg7bqE2/taijWn9/U6etDkmib6ZL2x4PlS/VqT4bFZqe+94Yr1
-ujDxUb7df+NyOpO4ODTeITtt22C0VJXh5zOyuKdfFnf3S8ejd1Ku1WS+XJVgVzZuoDXxmkSdBm1X
-28BG562CdOamJDtddrmfpx6mZuHlTMN4FZsoXngmAzMVF+eevpfzUXS9nXO50tkR10B3x6yazG+b
-CLb1Sjbjy5nxz3HYBvZ/9oofj7HjdYvXNLBNlvbdlB9H78r3E/fkavaldOQLcYyefuLGacQN0q9g
-oxEt3K/jQ7J8MB/PoP11US5OleRS9Fs++eDvOH2F9CLaWNk/IEvR01cODEr742mZKM+7RVzo9d24
-eBHT27hRFI/cEX+2kmzjXFXql1/EebeNyh6kf8WHY0My/qki9a4xl3MHSSVH+dqrdNH6CHdGR7l5
-xFuOskqa/M/HpLNdV5yma6KLs+nPGQAAAAAAAAAAAAA2xZg/CStBDqEMDusAAAAASUVORK5CYII=</bitmap>
+      <bitmap_item guid="e665d72d-4470-43f1-9a74-a7f1a96e66ba" index="23" />
+      <bitmap_item guid="0c6dcc76-9701-40e5-a9cb-b791cf15160c" index="24" />
+      <bitmap>iVBORw0KGgoAAAANSUhEUgAAABAAAAGQCAYAAACnNOANAAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+AAAOwgAADsIBFShKgAAAAhdJREFUeF7t0zFoE1EYwPGHqBRXBcFZ3FQcRMHNwV13F5UuuhW6CI3W
+XmuG6tDGqBV1UGkFB6EWjlZrI2ixFjVpYkrcHEqGomA1hXD3ed9d3vPaVFBcOvx/8JHLd+/77t17
+7wwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAbBah6T0YGC/XNL2fGsZraOi15vRea1g7MZmOaFA+KgjE
+eLJR6L3A9N3Usa2yRFLcNx1uG5Cg46qEWwfaijWn9/U6etD0mib6ZL2x5PlS/VyT0Yl5qe++5or1
+ujD1Xr7cfeVyOpO4ODTeATtt22C8VJXRp3OyvGtQlncOSteDN1Ku1WSxXJVgRzZuoDXxmkSdhm1X
+28BG942CdOdmJDtbdrnvJ+6nZuHlTNN4FZsonnsiQ3MVF2fG3srZKHpeL7hc6fRj10B3xzRM5qdN
+BFv6JZvx5dTkxzhsA/s/e8mPx9jxusVrGtgmK3uuy7fDt+XrsTtyOftcuvKFOMZPPnLjNOIG6Vew
+0YwW7sfREWnsz8cz6HxZlPMzJbkQ/ZaP3/s9Tl8hvYg2VvcOyUr09NV9w9L5cFamyotuEZf6fTcu
+XsT0Nm4UxUO3xJ+vJNu4UJX6xWdx3m2jsgfpT/HuyIhMfqhIvWfC5dxBUslRvvIiXbQ+wu3RUW4d
+8bajrJImf/Mx6WzXFafpmuji/PPnDAAAAAAAAAAAAAAAAAD/xZhf5mBA7ngIX6YAAAAASUVORK5C
+YII=</bitmap>
     </small_bitmap>
     <normal_bitmap item_width="24" item_height="24">
       <bitmap_item guid="f9c5b694-dced-4977-a15f-92d9fff043bc" index="0" />
@@ -1431,28 +2222,30 @@ xFuOskqa/M/HpLNdV5yma6KLs+nPGQAAAAAAAAAAAAA2xZg/CStBDqEMDusAAAAASUVORK5CYII=</bi
       <bitmap_item guid="61624676-c9c5-49bf-ad20-9aa2092d1576" index="20" />
       <bitmap_item guid="85a60542-9518-495a-80eb-1e3ee6470955" index="21" />
       <bitmap_item guid="6e502bab-241b-4e5b-ab6e-45895a855e3d" index="22" />
-      <bitmap>iVBORw0KGgoAAAANSUhEUgAAABgAAAIoCAYAAABzkit8AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
-AAAOvQAADr0BR/uQrQAABG9JREFUeF7t1HtMlXUcx/FzPCDIJUA9MUEFTEURuS1JdljUHJgkbCFx
-UzgQxppTayGYAsYfNUhRkVw6tgxBI7lo6cwmKAw2zUuXRQNX0625ahOLoSgKnPPp++PhthZ2Wv7h
-H5/X9t4ezvN7fl+e58CjIyIiIiIiIiIiIiIiIqInm52UKK0c/ukxi5zh4NTw9oo4ZISbHhh0ugPy
-2SLt1P8z195gKI9fHNjd9noBUHceA2cv40RuMV7wWXRTzm+VZg6v/I/cpY0mnwU/H0p6A0Ml1cDu
-OmCvJEPQ3oG7x8+hLDUbQUavq7I2SVKP8F/ppWQvj+mtu2JTcKv4IFDeCOw8CpTWAGrQ+4eBfTLo
-eBtwsQvXK+uQ92K81dHO7qRcu2J4l0dwcdTrm0ONXqjLzLVaymrlt24APjiiDRitRKo+A1z5CffP
-fI2KlByrv9sMGHT6wyP7TMol2Mm9vmLeMqTP8h3IDA7vb92wA9hTD5R9Nn4XR5uBlu9Qt6V0MHlp
-+MO8JSH9Z6OTMFVvqBnZZ1LOAU5uxy6ErsItU6p1v9ezD6On+917c3ls/43tFdqg3cdw4a1dFnN4
-1IPE2fP6TiZlDqKyATey8yDXV2nbTE4GuNY1BUfjTmTacB2BMUNFs+f3rfJe2PtxovnBuy8lDKz2
-ntNbGRHX172z0oLGJuDLdnRuLLRpgNMSB/f6c0Ex+DMyFb9GvIrbpmT0mFJwOSDm/jOOzn05viF3
-fnll/SC27QUO1MJSsAc4dBydm3fYNiDQwbWhRQb0jAxQ/SYNPL8OqUY/XI3PAtYXwWJ+B0Pr8jCU
-uRX45AQ6N9k4YKmTa2NLsNyBaXyA6q48riSjL9peTgdeK8BQumy+NhdD2duBqs9lQJFtA+SvqLE1
-xIYBGflyB1u0ATWn0GXjI3IOdvY4dTEsVr5gGwaouzDLIyqrwvXsfDXgiLbN5Fzd7OxPl88PH/5y
-e2VT9fwnG2BVm2cX4p45HwcjVqoBH2nbPNpzU/X66jSj98PmoGgZkopuGdb3twHIkkcjta5MQ+Jc
-v9t6vf5DudZf2+KfmaWJ7/rVvvbTzufOCcCPy+JhjcpAmqcfLsVlAjnFuJaQgyz/MIunvMZlrUm7
-ZFiUlK0djnOTLkl3JPXvHiop6q26IWia+7Uq/wisMfrgdEwS9i+PwWIXjytyLlmaphaKMKla6pG6
-pCnSmEDpd0k9R9UmaaK59jp9icMUw91FrjNvypXb5LOntFNjNkuj1/8h+Upj4qRvpVJJvd/Vq1fd
-plGaSD2KAO1wjFqj1n4hfSPtktqleGmMpzQ6caGkvrAO6XvpK2m/VCCtldR3VTjy2RlJrflBqpAW
-SMosyVs7nNzTUoL0nlQrqd+waSR1/Kmkzq2R1NrHwlFy0A6JiIiIiIiIiIiIiIiIiIiIiIiIiIiI
-iIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiI
-iIiIiIiI6Mmk0/0FBS0xTxQKOGIAAAAASUVORK5CYII=</bitmap>
+      <bitmap_item guid="e665d72d-4470-43f1-9a74-a7f1a96e66ba" index="23" />
+      <bitmap_item guid="0c6dcc76-9701-40e5-a9cb-b791cf15160c" index="24" />
+      <bitmap>iVBORw0KGgoAAAANSUhEUgAAABgAAAJYCAYAAAB4sCa9AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
+AAAOwgAADsIBFShKgAAABHJJREFUeF7t1G1MVmUcx/H7FhAECUzJlEJxKYoK6pRiWNZUTBNWaiAo
+glKsObVNUlPUfFHTFJXMpXPLEDUVQS1nNh+ZtsyHHpZNXU174XrUcio+IfDrf3EjuhZGyxe++H62
+73a4z3WuP+fccDwAAAAAAAAAAAAA7m/+1ihrSN1P91j/1oHBZVMHpmhsQuJ1P49nhX3W1Xfq/4kK
+8PMrSu3W49yBlwuk0n2q2nVEW/Pn6ekOXc/a+RlWm7qV/1G4NSmpQ+cfVqe9our5JdLiUmmpZUN0
+8Lgub9mrwoxcxUW0P2Zr0yz3CP+V10pv3+rBikXDRuv3eSulonJp4XppwVrJDXprjfSODdpyQDp0
+UqdXlWraM6m1Qf7+H9u1A+t2uYuWQV7vnt4R7bUxJ7+2pnCD/dZl0tvrfANuNd8q2Skd/V5Xd36h
+otF5tTFhreXn8a6p36dRLeODwzcv69RPY9pFVeXE971WMXGutGSzVLjx9l2s3yPt/1obpy64md4z
+4UZ+9/hruwanqbnXb239Po0KiQ0O2/R576H6NSmjdvnDfW8MDI++8mrCsGtnZi3zDVq8SZ9NWVST
+lfDk9RGPdKrclpZ9U6vKdCZ3muz6Yt82jbMBoaW74wfrUv/Muo7HDqqeYxsNjexy8f1RWdffePb5
+quGRkRdXJqZU/rZwVY3Kd0ufHNSJSbObNCC4e2D45r1xyfqzf4Z+SnxR55PSdSFptI7EJl/tFBRS
+mRfV69KPL0y4qZlLpRUbVFOwRFq9RSemzG3agB6BoWX7bcCF+gGun62qp8YqIyJax1LHSy/NUU32
+66oeO03VOTOkD7bqxOQmDugZHFq+P97uIOn2ANdle1xpER114LksaUKBqrNs8zH5qs6dJRVvswFz
+mjbA/orKK3o1YcC46XYHr/kGrN2uk018RCHxIa22H+ozzL7gJgxwd5Ftj6iwWKdzp7sB63zbNC40
+zD9gR9FjCXVf7kXb1D3/xgbUus1zZ+tK9nStTBziBrzn2+buHm/u9ZZkRrS7sSdusA3J0DkbVvm3
+ARpvj8aqGJKpUVHR571e77t2bYxvi3+Wbd35rh/eMaDFvvxHY/Vdv1TVDhinzLbROpySI+XN06kR
+ecqO6VPT1l7jtjbJd0mdAVau7/C2MOuwdcly/+69Lce9VSfGtQg/VRyTqJERHbQjOU3Ln0hWt5at
+jtq5dKuFW2j6WCXWBeuk1cxq0MP6xXLP0TXZulNUgMc7P7CZ3+WuoW3O2pUz7bMHfKcaTLFuXf+H
+1dFqkGJ9ZS2w3PvdvXrdbUZYd3KPItZ32MCtcWs/sr60FlkHrVSrQVvr1sQulvvCjlvfWJ9ay60C
+a4zlvqvZ9Z/ttNyab61lVmfLaWdF+g4b95A1wnrT2mC533B3fe74Q8udG2m5tfdEkBXoOwQAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAA3P88nr8AcosxCEvfR4EAAAAASUVORK5CYII=</bitmap>
     </normal_bitmap>
     <large_bitmap item_width="32" item_height="32">
       <bitmap_item guid="f9c5b694-dced-4977-a15f-92d9fff043bc" index="0" />
@@ -1478,306 +2271,335 @@ iIiIiIiI6Mmk0/0FBS0xTxQKOGIAAAAASUVORK5CYII=</bitmap>
       <bitmap_item guid="61624676-c9c5-49bf-ad20-9aa2092d1576" index="20" />
       <bitmap_item guid="85a60542-9518-495a-80eb-1e3ee6470955" index="21" />
       <bitmap_item guid="6e502bab-241b-4e5b-ab6e-45895a855e3d" index="22" />
-      <bitmap>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
-P5Fe5UF4YSGYAAAAAElFTkSuQmCC</bitmap>
+      <bitmap_item guid="e665d72d-4470-43f1-9a74-a7f1a96e66ba" index="23" />
+      <bitmap_item guid="0c6dcc76-9701-40e5-a9cb-b791cf15160c" index="24" />
+      <bitmap>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
+YII=</bitmap>
     </large_bitmap>
   </bitmaps>
   <scripts />
