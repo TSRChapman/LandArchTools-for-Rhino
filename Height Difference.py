@@ -24,4 +24,5 @@ if pt02:
 
     rs.ClipboardText(height)
 
-    rs.MessageBox(height, buttons=0, title="Height difference - Value copied to clipboard")
+    rs.MessageBox(height, buttons=0,
+                  title="Height difference - Value copied to clipboard")

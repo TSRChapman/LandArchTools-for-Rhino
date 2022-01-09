@@ -9,19 +9,19 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 
 '''
 
-#Delete selected objects outside view cone
+# Delete selected objects outside view cone
 
 
 import rhinoscriptsyntax as rs
 
 obj = rs.GetObjects('Select objects to test', preselect=True)
-bool = rs.GetBoolean('Delete or Hide',('Option','Delete','Hide'),(False))
+bool = rs.GetBoolean('Delete or Hide', ('Option', 'Delete', 'Hide'), (False))
 
 if obj:
     rs.EnableRedraw(False)
-    
+
     for i in obj:
-        
+
         isVisible = rs.IsVisibleInView(i)
         if isVisible == False:
             if bool[0] == True:

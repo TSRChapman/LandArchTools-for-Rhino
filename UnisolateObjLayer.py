@@ -9,8 +9,8 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 
 '''
 
-#Unisolate All objects
-#By Thomas Chapman 21/05/01
+# Unisolate All objects
+# By Thomas Chapman 21/05/01
 
 import rhinoscriptsyntax as rs
 

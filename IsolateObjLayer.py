@@ -12,10 +12,9 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 import rhinoscriptsyntax as rs
 
 # Get object and find layer it is on
-obj = rs.GetObjects('select an object on the layer to isolate',preselect=True)
+obj = rs.GetObjects('select an object on the layer to isolate', preselect=True)
 
 if obj:
-
 
     rs.EnableRedraw(False)
 
@@ -28,7 +27,7 @@ if obj:
     # Select all objects on each layer
 
     for i in selectedlayers:
-        rs.ObjectsByLayer(i,True)
+        rs.ObjectsByLayer(i, True)
     isolate = rs.SelectedObjects()
 
     allObjects = rs.AllObjects()

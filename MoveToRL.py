@@ -16,42 +16,46 @@ import rhinoscriptsyntax as rs
 import Rhino.Geometry as geo
 
 
-#Determin Unit system and scale m input to unit system scale and close if not mm, cm, m
+# Determin Unit system and scale m input to unit system scale and close if not mm, cm, m
 def scale():
     system = rs.UnitSystem()
     if system == 2 or system == 3 or system == 4:
-        scaleFactorDict = {2:1000, 3:100, 4:1}
+        scaleFactorDict = {2: 1000, 3: 100, 4: 1}
         scaleFactor = scaleFactorDict[system]
         return scaleFactor
 
     if system != 2 or system != 3 or system != 4:
         return None
 
+
 def main():
 
     if scale() == None:
-        rs.MessageBox("This tool is can only be used in mm, cm or m model units")
+        rs.MessageBox(
+            "This tool is can only be used in mm, cm or m model units")
         return None
 
-    obj = rs.GetObjects('Select objects',preselect=True)
+    obj = rs.GetObjects('Select objects', preselect=True)
     if obj:
         current = rs.GetPoint('Select point')
-        
-        if current: 
+
+        if current:
             rl = rs.GetString('RL to move to?')
             rl = float(rl)
             rl = rl*scale()
-            
-            if rl == 0.000: #move objects to the 0 coord
+
+            if rl == 0.000:  # move objects to the 0 coord
                 target3 = current.Z
                 if target3:
-                    target3 = target3 *-1
-                    target4 = geo.Point3d(0,0,target3)
+                    target3 = target3 * -1
+                    target4 = geo.Point3d(0, 0, target3)
                     rs.MoveObject(obj, target4)
-    
+
             elif rl > 0.000:
-                target = rl - current.Z #+ or - number to target location
-                target2 = geo.Point3d(0,0,target) #translated vector needed to hit target
+                target = rl - current.Z  # + or - number to target location
+                # translated vector needed to hit target
+                target2 = geo.Point3d(0, 0, target)
                 rs.MoveObject(obj, target2)
 
-main ()
+
+main()

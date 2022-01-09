@@ -12,18 +12,21 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 
 '''
 
-#Check document units
+# Check document units
 
-#Determin Unit system and scale m input to unit system scale and close if not mm, cm, m
+# Determin Unit system and scale m input to unit system scale and close if not mm, cm, m
+
+
 def scale():
     system = rs.UnitSystem()
     if system == 2 or system == 3 or system == 4:
-        scaleFactorDict = {2:1000, 3:100, 4:1}
+        scaleFactorDict = {2: 1000, 3: 100, 4: 1}
         scaleFactor = scaleFactorDict[system]
         return scaleFactor
 
     if system != 2 or system != 3 or system != 4:
         return None
+
 
 def get_image_size(fname):
     '''Determine the image type of fhandle and return its size.
@@ -41,7 +44,7 @@ def get_image_size(fname):
             width, height = struct.unpack('<HH', head[6:10])
         elif imghdr.what(fname) == 'jpeg':
             try:
-                fhandle.seek(0) # Read 0xff next
+                fhandle.seek(0)  # Read 0xff next
                 size = 2
                 ftype = 0
                 while not 0xc0 <= ftype <= 0xcf:
@@ -54,49 +57,55 @@ def get_image_size(fname):
                 # We are at a SOFn block
                 fhandle.seek(1, 1)  # Skip `precision' byte.
                 height, width = struct.unpack('>HH', fhandle.read(4))
-            except Exception: #IGNORE:W0703
+            except Exception:  # IGNORE:W0703
                 return
         else:
             return
         return width, height
 
+
 def main():
     if scale() == None:
-        rs.MessageBox("This tool is can only be used in mm, cm or m model units")
+        rs.MessageBox(
+            "This tool is can only be used in mm, cm or m model units")
         return None
-    
+
     factor = scale()
-    
-    #Find and open jgw file, extract scalefactor and x and y coordinates
-    
-    jgw = rs.OpenFileName(title= 'Select .JGW file',filter="JGW Files (*.JGW)|*.JGW||" )
-    
-    with open(jgw,'rt') as f:
+
+    # Find and open jgw file, extract scalefactor and x and y coordinates
+
+    jgw = rs.OpenFileName(title='Select .JGW file',
+                          filter="JGW Files (*.JGW)|*.JGW||")
+
+    with open(jgw, 'rt') as f:
         numslist = f.read().splitlines()
-    
+
     scaleFactor01 = numslist[0]
-    
+
     worldx = float(numslist[4])*int(factor)
     worldy = float(numslist[5])*int(factor)
-    
-    #Find and open jpg file, extract pixel size
-    
-    jpg = rs.OpenFileName(title= 'Select .JPG image File',filter="JPG Files (*.JPG)|*.JPG||")
-    
+
+    # Find and open jpg file, extract pixel size
+
+    jpg = rs.OpenFileName(title='Select .JPG image File',
+                          filter="JPG Files (*.JPG)|*.JPG||")
+
     size = get_image_size(jpg)
-    
+
     scaleFactor02 = (float(size[0])*int(factor))
     scaleFactor03 = (float(size[1])*int(factor))
-    
+
     # Calculate scale factor
-    
+
     scaleFactorWidth = (float(scaleFactor01))*(float(scaleFactor02))
     scaleFactorHeight = (float(scaleFactor01))*(float(scaleFactor03))
-    
+
     origin = (float(worldx), (float(worldy) - float(scaleFactorHeight)), 0)
-    
-    picturePlane = rs.PlaneFromFrame(origin,(1,0,0),(0,1,0))
-    
-    rs.AddPictureFrame(picturePlane,jpg,width=(float(scaleFactorWidth)), height=(float(scaleFactorHeight)))
+
+    picturePlane = rs.PlaneFromFrame(origin, (1, 0, 0), (0, 1, 0))
+
+    rs.AddPictureFrame(picturePlane, jpg, width=(
+        float(scaleFactorWidth)), height=(float(scaleFactorHeight)))
+
 
 main()

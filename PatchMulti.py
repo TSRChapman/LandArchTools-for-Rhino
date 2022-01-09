@@ -9,18 +9,18 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 
 '''
 
-#Patch Multiple Individual closed polylines
-#By Thomas Chapman 04/22/2021
+# Patch Multiple Individual closed polylines
+# By Thomas Chapman 04/22/2021
 
 import rhinoscriptsyntax as rs
 
-geo = rs.GetObjects('Select Closed Polylines',preselect=True)
+geo = rs.GetObjects('Select Closed Polylines', preselect=True)
 
 if geo:
-    
-    uv1 = rs.GetInteger('enter number of UV divisions',number=1,minimum=1)
+
+    uv1 = rs.GetInteger('enter number of UV divisions', number=1, minimum=1)
 
     rs.EnableRedraw(False)
     for objects in geo:
-        rs.AddPatch((objects),(uv1,uv1),tolerance=0.0001)
+        rs.AddPatch((objects), (uv1, uv1), tolerance=0.0001)
     rs.EnableRedraw(True)
