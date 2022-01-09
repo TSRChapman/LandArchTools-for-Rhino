@@ -9,7 +9,7 @@
   </extend_rhino_menus>
   <menus />
   <tool_bar_groups>
-    <tool_bar_group guid="1067bebe-88d0-4b21-ab8b-9c9b8b4860e0" dock_bar_guid32="00000000-0000-0000-0000-000000000000" dock_bar_guid64="764b7a3c-c626-4771-bff3-c47aa63fd0b1" active_tool_bar_group="d51f71b9-4a55-481d-a2ed-9bbc51b0bc7e" single_file="False" hide_single_tab="False" point_floating="117,273">
+    <tool_bar_group guid="1067bebe-88d0-4b21-ab8b-9c9b8b4860e0" dock_bar_guid32="00000000-0000-0000-0000-000000000000" dock_bar_guid64="764b7a3c-c626-4771-bff3-c47aa63fd0b1" active_tool_bar_group="d51f71b9-4a55-481d-a2ed-9bbc51b0bc7e" single_file="False" hide_single_tab="False" point_floating="1199,369">
       <text>
         <locale_1033>LandArchTools</locale_1033>
       </text>
@@ -19,7 +19,7 @@
         </text>
         <tool_bar_id>d8dc19cb-56d8-4f50-b015-76d6b2e6fb1f</tool_bar_id>
       </tool_bar_group_item>
-      <dock_bar_info dpi_scale="100" dock_bar="False" docking="True" horz="False" visible="True" floating="True" mru_float_style="8192" bar_id="59473" mru_width="868" point_pos="-2,-2" float_point="117,273" rect_mru_dock_pos="0,0,0,0" dock_location_u="59419" dock_location="top" float_size="777,62" />
+      <dock_bar_info dpi_scale="100" dock_bar="False" docking="True" horz="False" visible="True" floating="True" mru_float_style="8192" bar_id="59473" mru_width="868" point_pos="-2,-2" float_point="1199,369" rect_mru_dock_pos="0,0,0,0" dock_location_u="59419" dock_location="top" float_size="777,62" />
     </tool_bar_group>
   </tool_bar_groups>
   <tool_bars>
@@ -2527,60 +2527,83 @@ THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 '''
 
-# Project Curves to TIN 
+# Project Curves to TIN
 
+from rhinoscript.object import FlashObject
 import rhinoscriptsyntax as rs
 
+
 def main():
-    crvs = rs.GetObjects(message="Select curves to project", filter=4, group=True, preselect=False, 
-                         select=False, objects=None, minimum_count=1, maximum_count=0, 
+    crvs = rs.GetObjects(message="Select curves to project", filter=4, group=True, preselect=False,
+                         select=False, objects=None, minimum_count=1, maximum_count=0,
                          custom_filter=None)
-    if not crvs: return
-    obj = rs.GetObject("Select the TIN to project onto", 8|16|32)
-    if not obj: return
+    if not crvs:
+        return
+    obj = rs.GetObject("Select the TIN to project onto", 8 | 16 | 32)
+    if not obj:
+        return
     isMesh = rs.IsMesh(obj)
     zUpList = []
     zDownList = []
-    
+
     rs.EnableRedraw(False)
-    
-    #Convert Mesh to Nurbs for ShootRay compatibility
+
+    # Convert Mesh to Nurbs for ShootRay compatibility
     if isMesh == True:
         srf = rs.MeshToNurb(obj)
     if isMesh == False:
         srf = obj
-    
-    #Shoot ray from each grip point and move grips to reflection point
+
+    # Shoot ray from each grip point and move grips to reflection point
     for crv in crvs:
         rs.EnableObjectGrips(crv)
         grips = rs.ObjectGripLocations(crv)
         for grip in grips:
-            zUp = rs.ShootRay(srf, grip, (0,0,1), 1)
-            if zUp != None:
+
+            zUp = rs.ShootRay(srf, grip, (0, 0, 1), 1)
+            # if zUp != None:
+            if zUp == None:
+                zUpList.append(False)
+            else:
                 zUpList.append(zUp[1])
-            
-            zDown = rs.ShootRay(srf, grip, (0,0,-1), 1)
-            
-            if zDown != None:
+
+            zDown = rs.ShootRay(srf, grip, (0, 0, -1), 1)
+            # if zDown != None:
+            if zDown == None:
+                zDownList.append(False)
+            else:
                 zDownList.append(zDown[1])
 
-        rs.CopyObject(crv)
-        if zUp != None:
-            rs.ObjectGripLocations(crv, zUpList)
-        else:
+        rs.CopyObject(crv)  # Coppy Existing curve
+
+        # Find the right list to iterate over and insert existing points for any falses
+        if all(x is False for x in zUpList):
+            falseindex = [i for i, val in enumerate(zDownList) if not val]
+            for i in falseindex:
+                # Replace False with existing grip location and closest Z value
+                closestPt = rs.BrepClosestPoint(srf, grips[i])
+                zDownList[i] = (grips[i].X, grips[i].Y, closestPt[0].Z)
             rs.ObjectGripLocations(crv, zDownList)
-            
+        else:
+            falseindex = [i for i, val in enumerate(zUpList) if not val]
+            for i in falseindex:
+                # Replace False with existing grip location and closest Z value
+                closestPt = rs.BrepClosestPoint(srf, grips[i])
+                zUpList[i] = (grips[i].X, grips[i].Y, closestPt[0].Z)
+            rs.ObjectGripLocations(crv, zUpList)
+
         del zDownList[:]
         del zUpList[:]
         rs.EnableObjectGrips(crv, False)
 
     if isMesh == True:
         rs.DeleteObject(srf)
-    
+
     rs.EnableRedraw(True)
 
 
 main()
+
 
 )</script>
     </macro_item>
@@ -2616,7 +2639,7 @@ main()
       <bitmap_item guid="aa0767ee-0339-4044-a975-18e7177d0ab9" index="26" />
       <bitmap_item guid="8ada728b-3369-4944-abb1-ffbd8ad8bc45" index="27" />
       <bitmap>iVBORw0KGgoAAAANSUhEUgAAABAAAAHACAYAAACruuj6AAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
-AAAOwgAADsIBFShKgAAAAhxJREFUeF7t0zFoE1EYwPGHqBRXBcFZ3FQcRMHNwV13F5UuuhW6CI3W
+AAAOvwAADr8BOAVTJAAAAhxJREFUeF7t0zFoE1EYwPGHqBRXBcFZ3FQcRMHNwV13F5UuuhW6CI3W
 XusN1aGNUSvqoNIKDkIthFZrI2ixFjXpxZS4OZQMRcFoC+Hyed9d3vPaVNBB6PD/wUcu373vu3fv
 vTMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAsFk0Te/B0HjZhun9VDfeioZea07vtYa1E5PpiAblooJQ
 jCcbhd4LTd9NHdsqSyTFfdPNbQMSdlyV5taBtmLN6X29jh40vaaJPllvLHl5qXyuyujEvNR2X3PF
@@ -2658,7 +2681,7 @@ RU5ErkJggg==</bitmap>
       <bitmap_item guid="aa0767ee-0339-4044-a975-18e7177d0ab9" index="26" />
       <bitmap_item guid="8ada728b-3369-4944-abb1-ffbd8ad8bc45" index="27" />
       <bitmap>iVBORw0KGgoAAAANSUhEUgAAABgAAAKgCAYAAACBcb3JAAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
-AAAOwgAADsIBFShKgAAABHtJREFUeF7t1HtMlXUcx3GOQCBIYHp0Sl5wKYoKYkkRLnVOTBM2L3FV
+AAAOvwAADr8BOAVTJAAABHtJREFUeF7t1HtMlXUcx3GOQCBIYHp0Sl5wKYoKYkkRLnVOTBM2L3FV
 wSjWzEuL1BQ1/6hp3jOnzi1DlEwErZzZvJJumZcuy6aupv3htC0tp+INgU/fHwfRtTBa/lHb+7W9
 t8fz/J7f9zzPkccPAAAAAAAAAAAAwH9bgDXGGlr3rwesf6ugkLLXBqcoOyHhpr+f32r7rLvv1L/T
 MdDff3lqj14XDrxUKJXuU9WuI9pWME8DO3U/a+dnWK3rVv5DEdakpE5df1qX9rKq5xdLS0qlZZYN
@@ -2710,7 +2733,7 @@ AAAAAAAAAAAAAAAAAAAAAAAA4P/Iz+8Pe1Mwtz6RUpgAAAAASUVORK5CYII=</bitmap>
       <bitmap_item guid="aa0767ee-0339-4044-a975-18e7177d0ab9" index="26" />
       <bitmap_item guid="8ada728b-3369-4944-abb1-ffbd8ad8bc45" index="27" />
       <bitmap>iVBORw0KGgoAAAANSUhEUgAAACAAAAOACAYAAABbjnGHAAAABGdBTUEAALGPC/xhBQAAAAlwSFlz
-AAAOwgAADsIBFShKgAAAUx5JREFUeF7tXQd8VFX2zvSaBAIBQkgCoYXQaxJapEhHSkLvIEoVAelo
+AAAOvwAADr8BOAVTJAAAUx5JREFUeF7tXQd8VFX2zvSaBAIBQkgCoYXQaxJapEhHSkLvIEoVAelo
 AAE72BERsGJvgLr2ta1tbbu6uvZG75AGJHP+57szd3gz86ZmEnb3n+/HR968d+8957133+3n3Jhq
 RBkmZi5TI35VMUyxBstbsSZzWaIl7hv+3d55umrAws1v9svILC5Zv4O2jpxO8WZLid1kepSv1XEG
 qTyY7AbD67nNmhWd2/Ag0Y2PCJ4o2Erz2l5aYtLpz3CYxUyjCB1lGC0Gw2sD09MLlcKV/G7xzdQl
