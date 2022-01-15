@@ -13,18 +13,25 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 
 import rhinoscriptsyntax as rs
 
-# Get point from user and round to nearest 3 decimal points
-point = rs.GetPoint("Pick point to find Coordinate information")
-pointX = round(point.X, 3)
-pointY = round(point.Y, 3)
-pointZ = round(point.Z, 3)
 
-# store string in variable
-coord = ("E " + str(pointX) + " N " + str(pointY) + " Z " + str(pointZ))
+def GetCoordinate():
 
-# Create textdot
-rs.AddTextDot("E " + str(pointX) + " N " +
-              str(pointY) + " Z " + str(pointZ), point)
+    # Get point from user and round to nearest 3 decimal points
+    point = rs.GetPoint("Pick point to find Coordinate information")
+    pointX = round(point.X, 3)
+    pointY = round(point.Y, 3)
+    pointZ = round(point.Z, 3)
 
-# copy to clipboard
-rs.ClipboardText(coord)
+    # store string in variable
+    coord = ("E " + str(pointX) + " N " + str(pointY) + " Z " + str(pointZ))
+
+    # Create textdot
+    rs.AddTextDot("E " + str(pointX) + " N " +
+                  str(pointY) + " Z " + str(pointZ), point)
+
+    # copy to clipboard
+    rs.ClipboardText(coord)
+
+
+if __name__ == "__main__":
+    GetCoordinate()

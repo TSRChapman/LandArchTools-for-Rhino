@@ -12,21 +12,27 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 
 import rhinoscriptsyntax as rs
 
-obj = rs.GetObjects('Select Closed Curves for Offset', preselect=True)
-bool = rs.GetBoolean('Offset Direction', ('Direction',
-                     'Inward', 'Outward'), (False))
+
+def MultiOffset():
+
+    obj = rs.GetObjects('Select Closed Curves for Offset', preselect=True)
+    bool = rs.GetBoolean('Offset Direction', ('Direction',
+                                              'Inward', 'Outward'), (False))
+
+    if bool:
+        bool = bool[0]
+        offset = rs.GetReal('Distance to Offset')
+
+        for i in obj:
+            if rs.IsCurveClosed(i):
+                if bool == False:
+                    pt = rs.CurveAreaCentroid(i)
+                    pt = pt[0]
+                    rs.OffsetCurve(i, pt, offset)
+                if bool == True:
+                    pt = [1000000, 1000000, 1000000]
+                    rs.OffsetCurve(i, pt, offset)
 
 
-if bool:
-    bool = bool[0]
-    offset = rs.GetReal('Distance to Offset')
-
-    for i in obj:
-        if rs.IsCurveClosed(i):
-            if bool == False:
-                pt = rs.CurveAreaCentroid(i)
-                pt = pt[0]
-                rs.OffsetCurve(i, pt, offset)
-            if bool == True:
-                pt = [1000000, 1000000, 1000000]
-                rs.OffsetCurve(i, pt, offset)
+if __name__ == "__main__":
+    MultiOffset()

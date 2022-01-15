@@ -14,13 +14,21 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 
 import rhinoscriptsyntax as rs
 
-geo = rs.GetObjects('Select Closed Polylines', preselect=True)
 
-if geo:
+def PatchMulti():
 
-    uv1 = rs.GetInteger('enter number of UV divisions', number=1, minimum=1)
+    geo = rs.GetObjects('Select Closed Polylines', preselect=True)
 
-    rs.EnableRedraw(False)
-    for objects in geo:
-        rs.AddPatch((objects), (uv1, uv1), tolerance=0.0001)
-    rs.EnableRedraw(True)
+    if geo:
+
+        uv1 = rs.GetInteger('enter number of UV divisions',
+                            number=1, minimum=1)
+
+        rs.EnableRedraw(False)
+        for objects in geo:
+            rs.AddPatch((objects), (uv1, uv1), tolerance=0.0001)
+        rs.EnableRedraw(True)
+
+
+if __name__ == "__main__":
+    PatchMulti()

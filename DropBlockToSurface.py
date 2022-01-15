@@ -14,44 +14,52 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 
 import rhinoscriptsyntax as rs
 
-obj = rs.GetObjects('Select Objects', rs.filter.curve | rs.filter.instance | rs.filter.mesh |
-                    rs.filter.surface | rs.filter.subd | rs.filter.light | rs.filter.polysurface, preselect=True)
-srf = rs.GetObject('Select Surface')
 
-if obj:
-    if srf:
+def DropBlockToSurface():
 
-        rs.EnableRedraw(False)
+    obj = rs.GetObjects('Select Objects', rs.filter.curve | rs.filter.instance | rs.filter.mesh |
+                        rs.filter.surface | rs.filter.subd | rs.filter.light | rs.filter.polysurface, preselect=True)
+    srf = rs.GetObject('Select Surface')
 
-        # Check if srf is a mesh, if so convert to Nurb
-        isMesh = rs.IsMesh(srf)
-        if isMesh == True:
-            srf = rs.MeshToNurb(srf)
+    if obj:
+        if srf:
 
-        # For each object send test rays up and down in Z coord
-        # Move each object to the ray test that hits a srf
-        for i in obj:
-            bndBox = rs.BoundingBox(i)
-            pt1 = bndBox[0]
-            pt2 = bndBox[2]
-            crv = rs.AddLine(pt1, pt2)
+            rs.EnableRedraw(False)
 
-            if crv:
-                midcrv = rs.CurveMidPoint(crv)
-                rs.DeleteObject(crv)
+            # Check if srf is a mesh, if so convert to Nurb
+            isMesh = rs.IsMesh(srf)
+            if isMesh == True:
+                srf = rs.MeshToNurb(srf)
 
-            ray_pt_up = rs.ShootRay(srf, midcrv, (0, 0, 1), reflections=1)
-            ray_pt_down = rs.ShootRay(srf, midcrv, (0, 0, -1), reflections=1)
+            # For each object send test rays up and down in Z coord
+            # Move each object to the ray test that hits a srf
+            for i in obj:
+                bndBox = rs.BoundingBox(i)
+                pt1 = bndBox[0]
+                pt2 = bndBox[2]
+                crv = rs.AddLine(pt1, pt2)
 
-            if ray_pt_up:
-                vector = rs.VectorCreate(ray_pt_up[1], midcrv)
-                rs.MoveObject(i, vector)
+                if crv:
+                    midcrv = rs.CurveMidPoint(crv)
+                    rs.DeleteObject(crv)
 
-            if ray_pt_down:
-                vector = rs.VectorCreate(ray_pt_down[1], midcrv)
-                rs.MoveObject(i, vector)
+                ray_pt_up = rs.ShootRay(srf, midcrv, (0, 0, 1), reflections=1)
+                ray_pt_down = rs.ShootRay(
+                    srf, midcrv, (0, 0, -1), reflections=1)
 
-        # deleate any created srf
-        if isMesh == True:
-            rs.DeleteObject(srf)
-        rs.EnableRedraw(True)
+                if ray_pt_up:
+                    vector = rs.VectorCreate(ray_pt_up[1], midcrv)
+                    rs.MoveObject(i, vector)
+
+                if ray_pt_down:
+                    vector = rs.VectorCreate(ray_pt_down[1], midcrv)
+                    rs.MoveObject(i, vector)
+
+            # deleate any created srf
+            if isMesh == True:
+                rs.DeleteObject(srf)
+            rs.EnableRedraw(True)
+
+
+if __name__ == "__main__":
+    DropBlockToSurface()

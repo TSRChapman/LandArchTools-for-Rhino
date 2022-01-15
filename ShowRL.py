@@ -17,18 +17,18 @@ import rhinoscriptsyntax as rs
 import os
 
 
-def scale():
-    system = rs.UnitSystem()
-    if system == 2 or system == 3 or system == 4:
-        scaleFactorDict = {2: 0.001, 3: 0.01, 4: 1}
-        scaleFactor = scaleFactorDict[system]
-        return scaleFactor
+def ShowRL():
 
-    if system != 2 or system != 3 or system != 4:
-        return None
+    def scale():
+        system = rs.UnitSystem()
+        if system == 2 or system == 3 or system == 4:
+            scaleFactorDict = {2: 0.001, 3: 0.01, 4: 1}
+            scaleFactor = scaleFactorDict[system]
+            return scaleFactor
 
+        if system != 2 or system != 3 or system != 4:
+            return None
 
-def main():
     if scale() == None:
         rs.MessageBox(
             "This tool is can only be used in mm, cm or m model units")
@@ -46,4 +46,5 @@ def main():
     rs.ClipboardText(RL)
 
 
-main()
+if __name__ == "__main__":
+    ShowRL()

@@ -14,8 +14,15 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 
 import rhinoscriptsyntax as rs
 
-obj = rs.HiddenObjects()
 
-if obj:
+def UnisolateObjLayer():
 
-    rs.ShowObjects(obj)
+    obj = rs.HiddenObjects()
+
+    if obj:
+
+        rs.ShowObjects(obj)
+
+
+if __name__ == "__main__":
+    UnisolateObjLayer()

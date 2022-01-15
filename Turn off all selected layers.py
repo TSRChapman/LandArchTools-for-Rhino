@@ -11,14 +11,21 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 
 import rhinoscriptsyntax as rs
 
-obj = rs.GetObjects("select obj Layers to turn off")
 
-if obj:
+def TurnOffSelectedLayer():
 
-    rs.EnableRedraw(False)
+    obj = rs.GetObjects("select obj Layers to turn off")
 
-    for i in obj:
-        layer = rs.ObjectLayer(i)
-        rs.LayerVisible(layer, visible=False)
+    if obj:
 
-    rs.EnableRedraw(True)
+        rs.EnableRedraw(False)
+
+        for i in obj:
+            layer = rs.ObjectLayer(i)
+            rs.LayerVisible(layer, visible=False)
+
+        rs.EnableRedraw(True)
+
+
+if __name__ == "__main__":
+    TurnOffSelectedLayer()

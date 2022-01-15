@@ -16,21 +16,21 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 import rhinoscriptsyntax as rs
 import math as m
 
-# Determin Unit system and scale m input to unit system scale and close if not mm, cm, m
+# Determine Unit system and scale m input to unit system scale and close if not mm, cm, m
 
 
-def scale():
-    system = rs.UnitSystem()
-    if system == 2 or system == 3 or system == 4:
-        scaleFactorDict = {2: 1000, 3: 100, 4: 1}
-        scaleFactor = scaleFactorDict[system]
-        return scaleFactor
+def CalcGrade():
 
-    if system != 2 or system != 3 or system != 4:
-        return None
+    def scale():
+        system = rs.UnitSystem()
+        if system == 2 or system == 3 or system == 4:
+            scaleFactorDict = {2: 1000, 3: 100, 4: 1}
+            scaleFactor = scaleFactorDict[system]
+            return scaleFactor
 
+        if system != 2 or system != 3 or system != 4:
+            return None
 
-def main():
     if scale() == None:
         rs.MessageBox(
             "This tool is can only be used in mm, cm or m model units")
@@ -75,4 +75,5 @@ def main():
         rs.EnableRedraw(True)
 
 
-main()
+if __name__ == "__main__":
+    CalcGrade()
