@@ -91,7 +91,9 @@ def ProjectCurvesToTIN():
     except:
         rs.EnableObjectGrips(crv, False)
         rs.DeleteObject(crv)
-        rs.EnableRedraw()
+        rs.EnableRedraw(True)
+        print("Failed to project curves")
+        return
 
 
 if __name__ == "__main__":

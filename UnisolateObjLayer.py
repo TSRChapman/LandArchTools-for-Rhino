@@ -16,12 +16,19 @@ import rhinoscriptsyntax as rs
 
 
 def UnisolateObjLayer():
+    try:
+        rs.EnableRedraw(False)
+        obj = rs.HiddenObjects()
 
-    obj = rs.HiddenObjects()
+        if obj:
 
-    if obj:
+            rs.ShowObjects(obj)
+        rs.EnableRedraw(True)
 
-        rs.ShowObjects(obj)
+    except:
+        print("Failed to execute")
+        rs.EnableRedraw(True)
+        return
 
 
 if __name__ == "__main__":

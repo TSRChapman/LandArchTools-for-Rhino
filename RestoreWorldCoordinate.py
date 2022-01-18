@@ -15,41 +15,47 @@ import rhinoscriptsyntax as rs
 
 
 def RestoreWorldCoordinate():
+    try:
 
-    rs.EnableRedraw(False)
+        rs.EnableRedraw(False)
 
-    # retreive northing and easting from text object
-    obj = rs.ObjectsByName("_ORIGIN_TEXT_")
-    if obj:
-        text = rs.TextObjectText(obj)
-        textList = text.split()
-        easting = float(textList[1])
-        northing = float(textList[3])
+        # retreive northing and easting from text object
+        obj = rs.ObjectsByName("_ORIGIN_TEXT_")
+        if obj:
+            text = rs.TextObjectText(obj)
+            textList = text.split()
+            easting = float(textList[1])
+            northing = float(textList[3])
 
-        # create reference coordinates to make vector
-        orPoint = (easting, northing, 0)
-        point = rs.PointCoordinates(rs.ObjectsByName("_ORIGIN_POINT_"))
-        vector = rs.VectorCreate(orPoint, point)
+            # create reference coordinates to make vector
+            orPoint = (easting, northing, 0)
+            point = rs.PointCoordinates(rs.ObjectsByName("_ORIGIN_POINT_"))
+            vector = rs.VectorCreate(orPoint, point)
 
-        # move all objects back to original origin point
-        allObj = rs.AllObjects()
-        rs.MoveObjects(allObj, vector)
+            # move all objects back to original origin point
+            allObj = rs.AllObjects()
+            rs.MoveObjects(allObj, vector)
 
-        # delete coordinate geometry
-        isCurrent = rs.IsLayerCurrent("_ORIGIN_")
-        if isCurrent == False:
-            rs.PurgeLayer("_ORIGIN_")
-        if isCurrent == True:
-            defaultCheck = rs.IsLayer("Default")
-            if defaultCheck == True:
-                rs.CurrentLayer("Default")
+            # delete coordinate geometry
+            isCurrent = rs.IsLayerCurrent("_ORIGIN_")
+            if isCurrent == False:
                 rs.PurgeLayer("_ORIGIN_")
-            if defaultCheck == False:
-                rs.AddLayer("Default")
-                rs.CurrentLayer("Default")
-                rs.PurgeLayer("_ORIGIN_")
+            if isCurrent == True:
+                defaultCheck = rs.IsLayer("Default")
+                if defaultCheck == True:
+                    rs.CurrentLayer("Default")
+                    rs.PurgeLayer("_ORIGIN_")
+                if defaultCheck == False:
+                    rs.AddLayer("Default")
+                    rs.CurrentLayer("Default")
+                    rs.PurgeLayer("_ORIGIN_")
 
+            rs.EnableRedraw(True)
+
+    except:
+        print("Failed to execute")
         rs.EnableRedraw(True)
+        return
 
 
 if __name__ == "__main__":

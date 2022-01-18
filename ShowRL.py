@@ -18,32 +18,38 @@ import os
 
 
 def ShowRL():
+    try:
 
-    def scale():
-        system = rs.UnitSystem()
-        if system == 2 or system == 3 or system == 4:
-            scaleFactorDict = {2: 0.001, 3: 0.01, 4: 1}
-            scaleFactor = scaleFactorDict[system]
-            return scaleFactor
+        def scale():
+            system = rs.UnitSystem()
+            if system == 2 or system == 3 or system == 4:
+                scaleFactorDict = {2: 0.001, 3: 0.01, 4: 1}
+                scaleFactor = scaleFactorDict[system]
+                return scaleFactor
 
-        if system != 2 or system != 3 or system != 4:
+            if system != 2 or system != 3 or system != 4:
+                return None
+
+        if scale() == None:
+            rs.MessageBox(
+                "This tool is can only be used in mm, cm or m model units")
             return None
 
-    if scale() == None:
-        rs.MessageBox(
-            "This tool is can only be used in mm, cm or m model units")
-        return None
+        point = rs.GetPoint('Select point')
 
-    point = rs.GetPoint('Select point')
+        if point:
+            pointZ = point.Z
+        pointZ = pointZ*scale()
+        rs.AddTextDot('+RL ' + str(round(pointZ, 3)), point)
 
-    if point:
-        pointZ = point.Z
-    pointZ = pointZ*scale()
-    rs.AddTextDot('+RL ' + str(round(pointZ, 3)), point)
+        # Copy RL to Clipboard
+        RL = str(round(pointZ, 3))
+        rs.ClipboardText(RL)
 
-    # Copy RL to Clipboard
-    RL = str(round(pointZ, 3))
-    rs.ClipboardText(RL)
+    except:
+        print("Failed to execute")
+        rs.EnableRedraw(True)
+        return
 
 
 if __name__ == "__main__":

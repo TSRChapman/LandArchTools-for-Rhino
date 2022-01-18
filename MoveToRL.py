@@ -17,49 +17,54 @@ import Rhino.Geometry as geo
 
 
 def MoveToRL():
+    try:
+        # Determine Unit system and scale m input to unit system scale and close if not mm, cm, m
+        def scale():
+            system = rs.UnitSystem()
+            if system == 2 or system == 3 or system == 4:
+                scaleFactorDict = {2: 1000, 3: 100, 4: 1}
+                scaleFactor = scaleFactorDict[system]
+                return scaleFactor
 
-    # Determine Unit system and scale m input to unit system scale and close if not mm, cm, m
-    def scale():
-        system = rs.UnitSystem()
-        if system == 2 or system == 3 or system == 4:
-            scaleFactorDict = {2: 1000, 3: 100, 4: 1}
-            scaleFactor = scaleFactorDict[system]
-            return scaleFactor
+            if system != 2 or system != 3 or system != 4:
+                return None
 
-        if system != 2 or system != 3 or system != 4:
+        if scale() == None:
+            rs.MessageBox(
+                "This tool is can only be used in mm, cm or m model units")
             return None
 
-    if scale() == None:
-        rs.MessageBox(
-            "This tool is can only be used in mm, cm or m model units")
-        return None
+        obj = rs.GetObjects('Select objects', preselect=True)
+        if obj:
+            current = rs.GetPoint('Select point')
 
-    obj = rs.GetObjects('Select objects', preselect=True)
-    if obj:
-        current = rs.GetPoint('Select point')
+            if current:
+                rl = rs.GetString('RL to move to?')
+                rl = float(rl)
+                rl = rl*scale()
 
-        if current:
-            rl = rs.GetString('RL to move to?')
-            rl = float(rl)
-            rl = rl*scale()
+                if rl == 0:  # move objects to the 0 coord
+                    target3 = current.Z
+                    if target3:
+                        target3 = target3 * -1
+                        target4 = geo.Point3d(0, 0, target3)
+                        rs.MoveObject(obj, target4)
 
-            if rl == 0:  # move objects to the 0 coord
-                target3 = current.Z
-                if target3:
-                    target3 = target3 * -1
-                    target4 = geo.Point3d(0, 0, target3)
-                    rs.MoveObject(obj, target4)
+                elif rl < 0:
+                    target5 = rl - current.Z
+                    target6 = geo.Point3d(0, 0, target5)
+                    rs.MoveObject(obj, target6)
 
-            elif rl < 0:
-                target5 = rl - current.Z
-                target6 = geo.Point3d(0, 0, target5)
-                rs.MoveObject(obj, target6)
+                elif rl > 0:
+                    target = rl - current.Z  # + or - number to target location
+                    # translated vector needed to hit target
+                    target2 = geo.Point3d(0, 0, target)
+                    rs.MoveObject(obj, target2)
 
-            elif rl > 0:
-                target = rl - current.Z  # + or - number to target location
-                # translated vector needed to hit target
-                target2 = geo.Point3d(0, 0, target)
-                rs.MoveObject(obj, target2)
+    except:
+        print("Failed to execute")
+        rs.EnableRedraw(True)
+        return
 
 
 if __name__ == "__main__":

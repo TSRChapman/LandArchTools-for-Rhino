@@ -12,8 +12,13 @@ import rhinoscriptsyntax as rs
 
 
 def SetPerspective():
+    try:
+        rs.Command("_setview _w _p")
 
-    rs.Command("_setview _w _p")
+    except:
+        print("Failed to execute")
+        rs.EnableRedraw(True)
+        return
 
 
 if __name__ == "__main__":

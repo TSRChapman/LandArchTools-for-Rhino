@@ -16,24 +16,30 @@ import rhinoscriptsyntax as rs
 
 
 def DelOffScreen():
+    try:
 
-    obj = rs.GetObjects('Select objects to test', preselect=True)
-    bool = rs.GetBoolean(
-        'Delete or Hide', ('Option', 'Delete', 'Hide'), (False))
+        obj = rs.GetObjects('Select objects to test', preselect=True)
+        bool = rs.GetBoolean(
+            'Delete or Hide', ('Option', 'Delete', 'Hide'), (False))
 
-    if obj:
-        rs.EnableRedraw(False)
+        if obj:
+            rs.EnableRedraw(False)
 
-        for i in obj:
+            for i in obj:
 
-            isVisible = rs.IsVisibleInView(i)
-            if isVisible == False:
-                if bool[0] == True:
-                    rs.HideObject(i)
-                if bool[0] == False:
-                    rs.DeleteObject(i)
+                isVisible = rs.IsVisibleInView(i)
+                if isVisible == False:
+                    if bool[0] == True:
+                        rs.HideObject(i)
+                    if bool[0] == False:
+                        rs.DeleteObject(i)
 
-    rs.EnableRedraw(True)
+        rs.EnableRedraw(True)
+
+    except:
+        print("Failed to execute")
+        rs.EnableRedraw(True)
+        return
 
 
 if __name__ == "__main__":

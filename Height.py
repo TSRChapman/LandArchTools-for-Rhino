@@ -13,22 +13,28 @@ import rhinoscriptsyntax as rs
 
 
 def Height():
+    try:
 
-    pt01 = rs.GetPoint('Select first point to measure from')
-    pt02 = rs.GetPoint('Select second point to measure to')
+        pt01 = rs.GetPoint('Select first point to measure from')
+        pt02 = rs.GetPoint('Select second point to measure to')
 
-    if pt02:
+        if pt02:
 
-        pt01Z = pt01.Z
-        pt02Z = pt02.Z
+            pt01Z = pt01.Z
+            pt02Z = pt02.Z
 
-        height = abs(pt01Z-pt02Z)
-        height = round(height, 3)
+            height = abs(pt01Z-pt02Z)
+            height = round(height, 3)
 
-        rs.ClipboardText(height)
+            rs.ClipboardText(height)
 
-        rs.MessageBox(height, buttons=0,
-                      title="Height difference - Value copied to clipboard")
+            rs.MessageBox(height, buttons=0,
+                          title="Height difference - Value copied to clipboard")
+
+    except:
+        print("Failed to execute")
+        rs.EnableRedraw(True)
+        return
 
 
 if __name__ == "__main__":

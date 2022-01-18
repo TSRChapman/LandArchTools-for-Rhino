@@ -14,24 +14,29 @@ import rhinoscriptsyntax as rs
 
 
 def MultiOffset():
+    try:
+        obj = rs.GetObjects('Select Closed Curves for Offset', preselect=True)
+        bool = rs.GetBoolean('Offset Direction', ('Direction',
+                                                  'Inward', 'Outward'), (False))
 
-    obj = rs.GetObjects('Select Closed Curves for Offset', preselect=True)
-    bool = rs.GetBoolean('Offset Direction', ('Direction',
-                                              'Inward', 'Outward'), (False))
+        if bool:
+            bool = bool[0]
+            offset = rs.GetReal('Distance to Offset')
 
-    if bool:
-        bool = bool[0]
-        offset = rs.GetReal('Distance to Offset')
+            for i in obj:
+                if rs.IsCurveClosed(i):
+                    if bool == False:
+                        pt = rs.CurveAreaCentroid(i)
+                        pt = pt[0]
+                        rs.OffsetCurve(i, pt, offset)
+                    if bool == True:
+                        pt = [1000000, 1000000, 1000000]
+                        rs.OffsetCurve(i, pt, offset)
 
-        for i in obj:
-            if rs.IsCurveClosed(i):
-                if bool == False:
-                    pt = rs.CurveAreaCentroid(i)
-                    pt = pt[0]
-                    rs.OffsetCurve(i, pt, offset)
-                if bool == True:
-                    pt = [1000000, 1000000, 1000000]
-                    rs.OffsetCurve(i, pt, offset)
+    except:
+        print("Failed to execute")
+        rs.EnableRedraw(True)
+        return
 
 
 if __name__ == "__main__":

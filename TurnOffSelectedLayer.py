@@ -13,18 +13,24 @@ import rhinoscriptsyntax as rs
 
 
 def TurnOffSelectedLayer():
+    try:
 
-    obj = rs.GetObjects("select obj Layers to turn off")
+        obj = rs.GetObjects("select obj Layers to turn off")
 
-    if obj:
+        if obj:
 
-        rs.EnableRedraw(False)
+            rs.EnableRedraw(False)
 
-        for i in obj:
-            layer = rs.ObjectLayer(i)
-            rs.LayerVisible(layer, visible=False)
+            for i in obj:
+                layer = rs.ObjectLayer(i)
+                rs.LayerVisible(layer, visible=False)
 
+            rs.EnableRedraw(True)
+
+    except:
+        print("Failed to execute")
         rs.EnableRedraw(True)
+        return
 
 
 if __name__ == "__main__":

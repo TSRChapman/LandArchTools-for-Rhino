@@ -12,8 +12,13 @@ import rhinoscriptsyntax as rs
 
 
 def SetTop():
+    try:
+        rs.Command("_setview _w _T")
 
-    rs.Command("_setview _w _T")
+    except:
+        print("Failed to execute")
+        rs.EnableRedraw(True)
+        return
 
 
 if __name__ == "__main__":

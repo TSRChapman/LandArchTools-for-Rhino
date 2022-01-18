@@ -13,39 +13,45 @@ import rhinoscriptsyntax as rs
 
 
 def IsolateObjLayer():
+    try:
 
-    # Get object and find layer it is on
-    obj = rs.GetObjects(
-        'select an object on the layer to isolate', preselect=True)
+        # Get object and find layer it is on
+        obj = rs.GetObjects(
+            'select an object on the layer to isolate', preselect=True)
 
-    if obj:
+        if obj:
 
-        rs.EnableRedraw(False)
+            rs.EnableRedraw(False)
 
-        # Create list of selected obj layers
-        selectedlayers = []
-        for i in obj:
-            layer = rs.ObjectLayer(i)
-            selectedlayers.append(layer)
+            # Create list of selected obj layers
+            selectedlayers = []
+            for i in obj:
+                layer = rs.ObjectLayer(i)
+                selectedlayers.append(layer)
 
-        # Select all objects on each layer
+            # Select all objects on each layer
 
-        for i in selectedlayers:
-            rs.ObjectsByLayer(i, True)
-        isolate = rs.SelectedObjects()
+            for i in selectedlayers:
+                rs.ObjectsByLayer(i, True)
+            isolate = rs.SelectedObjects()
 
-        allObjects = rs.AllObjects()
+            allObjects = rs.AllObjects()
 
-        for i in isolate:
-            allObjects.remove(i)
+            for i in isolate:
+                allObjects.remove(i)
 
-        # Hide selected objects
+            # Hide selected objects
 
-        rs.HideObjects(allObjects)
+            rs.HideObjects(allObjects)
 
-        rs.UnselectAllObjects()
+            rs.UnselectAllObjects()
 
+            rs.EnableRedraw(True)
+
+    except:
+        print("Failed to execute")
         rs.EnableRedraw(True)
+        return
 
 
 if __name__ == "__main__":

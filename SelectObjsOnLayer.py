@@ -11,6 +11,7 @@ def SelectObjsOnLayer():
         layer = rs.ObjectLayer(obj)
         objs = rs.ObjectsByLayer(layer, select=True)
         rs.EnableRedraw(True)
+
     except:
         rs.EnableRedraw(True)
         print("Failed to execute")
