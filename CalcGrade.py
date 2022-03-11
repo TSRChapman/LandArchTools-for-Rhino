@@ -34,46 +34,50 @@ def CalcGrade():
 
         if scale() == None:
             rs.MessageBox(
-                "This tool is can only be used in mm, cm or m model units")
+                "This tool can only be used in mm, cm or m model units")
             return None
 
         # Get points from user
         pt1 = rs.GetPoint('Pick the first point')
         pt2 = rs.GetPoint('Pick the second point')
+        if pt1:
+            if pt2:
+                rs.EnableRedraw(False)
+                hypotenuse = rs.Distance(pt1, pt2)
 
-        if pt2:
-            rs.EnableRedraw(False)
-            hypotenuse = rs.Distance(pt1, pt2)
+                # Find the rise of given points in any order
+                if pt1.Z == pt2.Z:
+                    rs.EnableRedraw(True)
+                    print("No Grade Found")
+                    return
+                if pt1.Z > pt2.Z:
+                    rise = pt1.Z - pt2.Z
+                elif pt1.Z < pt2.Z:
+                    rise = pt2.Z - pt1.Z
 
-            # Find the rise of given points in any order
-            if pt1.Z == pt2.Z:
-                return None
-            if pt1.Z > pt2.Z:
-                rise = pt1.Z - pt2.Z
-            elif pt1.Z < pt2.Z:
-                rise = pt2.Z - pt1.Z
+                # Find the run of given points
+                run = m.sqrt(hypotenuse**2 - rise**2)
 
-            # Find the run of given points
-            run = m.sqrt(hypotenuse**2 - rise**2)
+                # Detect model units and scale to mm, if mm do nothing
+                rise = rise*scale()
+                run = run*scale()
+                print(rise)
+                print(run)
+                # Calculate grade based on rise and run
+                try:
+                    grade = run / rise
 
-            # Detect model units and scale to mm, if mm do nothing
-            rise = rise*scale()
-            run = run*scale()
+                except ZeroDivisionError:
+                    print('No Grade Found')
+                    rs.EnableRedraw(True)
+                    exit()
 
-            # Calculate grade based on rise and run
-            try:
-                grade = run / rise
-
-            except ZeroDivisionError:
-                print('No Grade Found')
-                exit()
-
-            # Print text dot to screen
-            curve = rs.AddCurve([pt1, pt2])
-            midpoint = rs.CurveMidPoint(curve)
-            rs.DeleteObject(curve)
-            rs.AddTextDot('1:' + str(abs(round(grade, 2))), midpoint)
-            rs.EnableRedraw(True)
+                # Print text dot to screen
+                curve = rs.AddCurve([pt1, pt2])
+                midpoint = rs.CurveMidPoint(curve)
+                rs.DeleteObject(curve)
+                rs.AddTextDot('1:' + str(abs(round(grade, 2))), midpoint)
+                rs.EnableRedraw(True)
 
     except:
         print("Failed to execute")
