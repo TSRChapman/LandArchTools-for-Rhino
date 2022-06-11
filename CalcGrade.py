@@ -26,7 +26,7 @@ import Rhino as r
 def CalcGrade():
 
     try:
-        scale = scaling()
+        scale, imperial  = scaling()
 
         # Get points from user
         pt1 = rs.GetPoint('Pick the first point')
@@ -65,7 +65,11 @@ def CalcGrade():
                 curve = rs.AddCurve([pt1, pt2])
                 midpoint = rs.CurveMidPoint(curve)
                 rs.DeleteObject(curve)
-                rs.AddTextDot('1:' + str(abs(round(grade, 2))), midpoint)
+                if imperial == True:
+                    grade = (1/grade)*100
+                    rs.AddTextDot(str(abs(round(grade, 2))) + "%", midpoint)
+                else:
+                    rs.AddTextDot('1:' + str(abs(round(grade, 2))), midpoint)
                 rs.EnableRedraw(True)
 
     except:
@@ -76,11 +80,15 @@ def CalcGrade():
 def scaling():
     try:
         unitNum= int(sc.doc.ModelUnitSystem)
+        if unitNum != 1 and unitNum != 2 and unitNum != 3 and unitNum != 4 and unitNum != 5: #check to see if using metric
+            imperial = True
+        else:
+            imperial = False
         unitSystem = System.Enum.ToObject(r.UnitSystem, unitNum) # struct unit system for current file
-        internalSystem = System.Enum.ToObject(r.UnitSystem, 2) # struct unitsystem obj for script use
+        internalSystem = System.Enum.ToObject(r.UnitSystem, 2) # struct unitsystem obj for script use, using meteres (2)
         scale = r.RhinoMath.UnitScale(internalSystem, unitSystem)# Scale units to model units
         if scale:
-            return scale
+            return scale, imperial
     except:
         print ("Failed to find system scale")
         rs.EnableRedraw(True)
