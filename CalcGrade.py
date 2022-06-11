@@ -15,27 +15,18 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 
 import rhinoscriptsyntax as rs
 import math as m
+import scriptcontext as sc
+import System
+import Rhino as r
+
 
 # Determine Unit system and scale m input to unit system scale and close if not mm, cm, m
 
 
 def CalcGrade():
+
     try:
-
-        def scale():
-            system = rs.UnitSystem()
-            if system == 2 or system == 3 or system == 4:
-                scaleFactorDict = {2: 1000, 3: 100, 4: 1}
-                scaleFactor = scaleFactorDict[system]
-                return scaleFactor
-
-            if system != 2 or system != 3 or system != 4:
-                return None
-
-        if scale() == None:
-            rs.MessageBox(
-                "This tool can only be used in mm, cm or m model units")
-            return None
+        scale = scaling()
 
         # Get points from user
         pt1 = rs.GetPoint('Pick the first point')
@@ -59,10 +50,8 @@ def CalcGrade():
                 run = m.sqrt(hypotenuse**2 - rise**2)
 
                 # Detect model units and scale to mm, if mm do nothing
-                rise = rise*scale()
-                run = run*scale()
-                print(rise)
-                print(run)
+                rise = rise*scale
+                run = run*scale
                 # Calculate grade based on rise and run
                 try:
                     grade = run / rise
@@ -81,6 +70,19 @@ def CalcGrade():
 
     except:
         print("Failed to execute")
+        rs.EnableRedraw(True)
+        return
+
+def scaling():
+    try:
+        unitNum= int(sc.doc.ModelUnitSystem)
+        unitSystem = System.Enum.ToObject(r.UnitSystem, unitNum) # struct unit system for current file
+        internalSystem = System.Enum.ToObject(r.UnitSystem, 2) # struct unitsystem obj for script use
+        scale = r.RhinoMath.UnitScale(internalSystem, unitSystem)# Scale units to model units
+        if scale:
+            return scale
+    except:
+        print ("Failed to find system scale")
         rs.EnableRedraw(True)
         return
 
