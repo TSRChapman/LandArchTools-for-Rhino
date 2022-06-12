@@ -1,4 +1,4 @@
-'''
+"""
 
 Copyright <2021> <Thomas Chapman>
 
@@ -7,7 +7,7 @@ WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEM
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-'''
+"""
 
 # GRADE CURVE
 
@@ -17,29 +17,25 @@ import rhinoscriptsyntax as rs
 def GradeCurve():
     try:
 
-        def scale():
-            system = rs.UnitSystem()
-            if system == 2 or system == 3 or system == 4:
-                scaleFactorDict = {2: 1, 3: 100, 4: 1000}
-                scaleFactor = scaleFactorDict[system]
-                return scaleFactor
-
-            if system != 2 or system != 3 or system != 4:
-                return None
-
-        # If system is not metric, bail.
-        if scale() == None:
-            rs.MessageBox(
-                "This tool can only be used in mm, cm or m model units")
-            return None
-
         # Set Variables
-        crv = rs.GetObject(message="Get object to grade", filter=4,
-                           preselect=True, select=False, custom_filter=None, subobjects=False)
+        crv = rs.GetObject(
+            message="Get object to grade",
+            filter=4,
+            preselect=True,
+            select=False,
+            custom_filter=None,
+            subobjects=False,
+        )
         if not crv:
             return
-        grade = rs.GetReal(message="Enter grade number",
-                           number=20, minimum=0.001, maximum=None)
+
+        grade = rs.GetReal(
+            message="Enter grade ratio number 1:XXX",
+            number=20,
+            minimum=0.001,
+            maximum=None,
+        )
+
         if not grade:
             return
 
@@ -53,7 +49,7 @@ def GradeCurve():
 
         for i in ctrlPts:
             paramNum = rs.CurveClosestPoint(crv, i)
-            CL = (rs.CurveLength(crv, sub_domain=[startParam, paramNum]))
+            CL = rs.CurveLength(crv, sub_domain=[startParam, paramNum])
             crvLengths.append(CL)
 
         # FIND GRADED Z HEIGHT OF GRIP POINT
@@ -66,7 +62,7 @@ def GradeCurve():
         newGrips = []
         gripIndex = 0
         for i in ctrlPts:
-            newPt = (i.X, i.Y, (i.Z+gripHeights[gripIndex]))
+            newPt = (i.X, i.Y, (i.Z + gripHeights[gripIndex]))
             newGrips.append(newPt)
             gripIndex = gripIndex + 1
 

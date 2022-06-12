@@ -1,5 +1,4 @@
-
-'''
+"""
 
 Copyright <2021> <Thomas Chapman>
 
@@ -8,7 +7,7 @@ WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEM
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-'''
+"""
 
 # Calculate grade between two given points
 # By Thomas Chapman on 11/01/2021
@@ -26,11 +25,11 @@ import Rhino as r
 def CalcGrade():
 
     try:
-        scale, imperial  = scaling()
+        scale, imperial = scaling()
 
         # Get points from user
-        pt1 = rs.GetPoint('Pick the first point')
-        pt2 = rs.GetPoint('Pick the second point')
+        pt1 = rs.GetPoint("Pick the first point")
+        pt2 = rs.GetPoint("Pick the second point")
         if pt1:
             if pt2:
                 rs.EnableRedraw(False)
@@ -50,14 +49,14 @@ def CalcGrade():
                 run = m.sqrt(hypotenuse**2 - rise**2)
 
                 # Detect model units and scale to mm, if mm do nothing
-                rise = rise*scale
-                run = run*scale
+                rise = rise * scale
+                run = run * scale
                 # Calculate grade based on rise and run
                 try:
                     grade = run / rise
 
                 except ZeroDivisionError:
-                    print('No Grade Found')
+                    print("No Grade Found")
                     rs.EnableRedraw(True)
                     exit()
 
@@ -66,10 +65,10 @@ def CalcGrade():
                 midpoint = rs.CurveMidPoint(curve)
                 rs.DeleteObject(curve)
                 if imperial == True:
-                    grade = (1/grade)*100
+                    grade = (1 / grade) * 100
                     rs.AddTextDot(str(abs(round(grade, 2))) + "%", midpoint)
                 else:
-                    rs.AddTextDot('1:' + str(abs(round(grade, 2))), midpoint)
+                    rs.AddTextDot("1:" + str(abs(round(grade, 2))), midpoint)
                 rs.EnableRedraw(True)
 
     except:
@@ -77,20 +76,31 @@ def CalcGrade():
         rs.EnableRedraw(True)
         return
 
+
 def scaling():
     try:
-        unitNum= int(sc.doc.ModelUnitSystem)
-        if unitNum != 1 and unitNum != 2 and unitNum != 3 and unitNum != 4 and unitNum != 5: #check to see if using metric
+        unitNum = int(sc.doc.ModelUnitSystem)
+        # check to see if using metric
+        if (
+            unitNum != 1
+            and unitNum != 2
+            and unitNum != 3
+            and unitNum != 4
+            and unitNum != 5
+        ):
             imperial = True
         else:
             imperial = False
-        unitSystem = System.Enum.ToObject(r.UnitSystem, unitNum) # struct unit system for current file
-        internalSystem = System.Enum.ToObject(r.UnitSystem, 2) # struct unitsystem obj for script use, using meteres (2)
-        scale = r.RhinoMath.UnitScale(internalSystem, unitSystem)# Scale units to model units
+        # struct unit system for current file
+        unitSystem = System.Enum.ToObject(r.UnitSystem, unitNum)
+        # struct unitsystem obj for script use, using meteres (2)
+        internalSystem = System.Enum.ToObject(r.UnitSystem, 2)
+        # Scale units to model units
+        scale = r.RhinoMath.UnitScale(internalSystem, unitSystem)
         if scale:
             return scale, imperial
     except:
-        print ("Failed to find system scale")
+        print("Failed to find system scale")
         rs.EnableRedraw(True)
         return
 
