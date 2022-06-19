@@ -93,7 +93,7 @@ def scaling():
             imperial = False
         # struct unit system for current file
         unitSystem = System.Enum.ToObject(r.UnitSystem, unitNum)
-        # struct unitsystem obj for script use, using meteres (2)
+        # struct unitsystem obj for script use, using mm (2)
         internalSystem = System.Enum.ToObject(r.UnitSystem, 2)
         # Scale units to model units
         scale = r.RhinoMath.UnitScale(internalSystem, unitSystem)
