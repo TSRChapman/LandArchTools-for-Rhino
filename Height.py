@@ -27,20 +27,25 @@ def Height():
             line01 = rg.Line(pt01, currentPoint)
             line02 = rg.Line(currentPoint, projectedPoint)
             line03 = rg.Line(projectedPoint, pt01)
-            midPoint = line02.PointAt(0.5)
+            midPoint01 = line02.PointAt(0.5)
+            midPoint02 = line03.PointAt(0.5)
             circle = rg.Circle(pt01, line03.Length)
 
-            height = str(round(abs(pt01.Z - currentPoint.Z), 3))
+            height = round((currentPoint.Z - pt01.Z), 3)
+            height = "H | " + str(height)
+            length = "L | " + (str(round(abs(line03.Length), 3)))
 
-            args.Display.DrawCircle(circle, greyColour, 2)
+            args.Display.DrawCircle(circle, blackColour, 2)
             args.Display.DrawLine(line01, blueColour, 4)
             args.Display.DrawLine(line02, pinkColour, 5)
             args.Display.DrawLine(line03, blueColour, 4)
-            args.Display.DrawDot(midPoint, height, greyColour, pinkColour)
+            args.Display.DrawDot(midPoint02, length, greyColour, blackColour)
+            args.Display.DrawDot(midPoint01, height, greyColour, blackColour)
 
         pinkColour = System.Drawing.Color.FromArgb(255, 0, 133)
         blueColour = System.Drawing.Color.FromArgb(82, 187, 209)
         greyColour = System.Drawing.Color.FromArgb(216, 220, 219)
+        blackColour = System.Drawing.Color.FromArgb(0, 0, 0)
 
         gp = ri.Custom.GetPoint()
         gp.Get()
@@ -50,7 +55,8 @@ def Height():
             gp.Get()
             if gp.CommandResult() == rc.Result.Success:
                 pt02 = gp.Point()
-                height = str(round(abs(pt01.Z - pt02.Z), 3))
+                height = round((pt02.Z - pt01.Z), 3)
+                height = "H | " + str(height)
                 print("Height = " + height)
                 rs.ClipboardText(height)
             else:
