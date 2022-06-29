@@ -1,6 +1,6 @@
 """
 
-Copyright <2021> <Thomas Chapman>
+Copyright <2022> <Thomas Chapman>
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
 WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
@@ -52,7 +52,7 @@ def GetCoordinate():
             pointX = round(point.X, 3)
             pointY = round(point.Y, 3)
             pointZ = round(point.Z, 3)
-            circle = rg.Circle(point, 100 * scale)
+            circle = rg.Circle(point, 10 * scale)
             # store string in variable
             coord = "E " + str(pointX) + " N " + str(pointY) + " Z " + str(pointZ)
             args.Display.DrawCircle(circle, blackColour, 2)

@@ -17,6 +17,9 @@ import rhinoscriptsyntax as rs
 import scriptcontext as sc
 import System
 import Rhino as r
+import Rhino.Input as ri
+import Rhino.Commands as rc
+import Rhino.Geometry as rg
 
 
 def ShowRL():
@@ -24,20 +27,51 @@ def ShowRL():
 
         scale, imperial = scaling()
 
-        point = rs.GetPoint("Select point")
+        def GetPointDynamicDrawFunc(sender, args):
+            point = args.CurrentPoint
 
-        if point:
-            pointZ = point.Z
-        pointZ = pointZ * scale
+            circle = rg.Circle(point, 1 * scale)
+            line01 = rg.Line(point, rg.Point3d(point.X + 1, point.Y, point.Z))
+            line02 = rg.Line(point, rg.Point3d(point.X - 1, point.Y, point.Z))
+            line03 = rg.Line(point, rg.Point3d(point.X, point.Y + 1, point.Z))
+            line04 = rg.Line(point, rg.Point3d(point.X, point.Y - 1, point.Z))
+            midpoint = line03.PointAt(0.5)
 
-        if imperial == False:
-            rs.AddTextDot("+RL " + str(round(pointZ, 3)) + " m", point)
-        if imperial == True:
-            rs.AddTextDot("+RL " + str(round(pointZ, 3)) + " ft", point)
+            if imperial == False:
+                rl = "+RL " + str(round(point.Z * scale, 3)) + " m"
+            if imperial == True:
+                rl = "+RL " + str(round(point.Z * scale, 3)) + " ft"
 
-        # Copy RL to Clipboard
-        RL = str(round(pointZ, 3))
-        rs.ClipboardText(RL)
+            args.Display.DrawLine(line01, blueColour, 4)
+            args.Display.DrawLine(line02, blueColour, 4)
+            args.Display.DrawLine(line03, blueColour, 4)
+            args.Display.DrawLine(line04, blueColour, 4)
+            args.Display.DrawCircle(circle, pinkColour, 2)
+            args.Display.DrawDot(midpoint, str(rl), greyColour, blackColour)
+
+        pinkColour = System.Drawing.Color.FromArgb(255, 0, 133)
+        blueColour = System.Drawing.Color.FromArgb(82, 187, 209)
+        greyColour = System.Drawing.Color.FromArgb(216, 220, 219)
+        blackColour = System.Drawing.Color.FromArgb(0, 0, 0)
+
+        gp = ri.Custom.GetPoint()
+        gp.DynamicDraw += GetPointDynamicDrawFunc
+        gp.Get()
+        if gp.CommandResult() == rc.Result.Success:
+            point = gp.Point()
+
+            if point:
+                pointZ = point.Z
+            pointZ = pointZ * scale
+
+            if imperial == False:
+                rs.AddTextDot("+RL " + str(round(pointZ, 3)) + " m", point)
+            if imperial == True:
+                rs.AddTextDot("+RL " + str(round(pointZ, 3)) + " ft", point)
+
+            # Copy RL to Clipboard
+            RL = str(round(pointZ, 3))
+            rs.ClipboardText(RL)
 
     except:
         print("Failed to execute")
