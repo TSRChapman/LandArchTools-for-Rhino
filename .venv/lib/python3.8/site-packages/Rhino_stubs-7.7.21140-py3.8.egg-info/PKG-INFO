@@ -1,0 +1,18 @@
+Metadata-Version: 2.1
+Name: Rhino-stubs
+Version: 7.7.21140
+Summary: Stubs for RhinoCommon
+Home-page: https://github.com/mcneel/pythonstubs
+Author: Robert McNeel & Associates
+Author-email: steve@mcneel.com
+License: UNKNOWN
+Description: 
+        # Rhino-stubs
+        Stubs for RhinoCommon
+        
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python
+Description-Content-Type: text/markdown
