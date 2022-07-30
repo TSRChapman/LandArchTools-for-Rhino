@@ -15,7 +15,7 @@ import rhinoscriptsyntax as rs
 
 
 def GradeCurve():
-    try:
+    # try:
 
         # Set Variables
         crv = rs.GetObject(
@@ -27,17 +27,24 @@ def GradeCurve():
             subobjects=False,
         )
         if not crv:
-            return
+            print ("No curve selected")
+            return False
 
         grade = rs.GetReal(
             message="Enter grade ratio number 1:XXX",
-            number=20,
             minimum=0.001,
             maximum=None,
         )
 
         if not grade:
-            return
+            height = rs.GetReal(
+            message="Enter Height:",
+            minimum=0.001,
+            maximum=None,
+        )
+            if not height:
+                print("No user input")
+                return False
 
         rs.EnableRedraw(False)
 
@@ -47,36 +54,55 @@ def GradeCurve():
         crvLengths = []
         startParam = rs.CurveClosestPoint(crv, ctrlPts[0])
 
-        for i in ctrlPts:
-            paramNum = rs.CurveClosestPoint(crv, i)
-            CL = rs.CurveLength(crv, sub_domain=[startParam, paramNum])
-            crvLengths.append(CL)
+        if grade:
+            for i in ctrlPts:
+                paramNum = rs.CurveClosestPoint(crv, i)
+                CL = rs.CurveLength(crv, sub_domain=[startParam, paramNum])
+                crvLengths.append(CL)
+            
+            # FIND GRADED Z HEIGHT OF GRIP POINT
+            gripHeights = []
+            for i in crvLengths:
+                rise = i / grade
+                gripHeights.append(rise)
 
-        # FIND GRADED Z HEIGHT OF GRIP POINT
-        gripHeights = []
-        for i in crvLengths:
-            rise = i / grade
-            gripHeights.append(rise)
+            # EDIT GRIP POINTS WITH NEW Z VALUE
+            newGrips = []
+            gripIndex = 0
+            for i in ctrlPts:
+                newPt = (i.X, i.Y, (i.Z + gripHeights[gripIndex]))
+                newGrips.append(newPt)
+                gripIndex = gripIndex + 1
 
-        # EDIT GRIP POINTS WITH NEW Z VALUE
-        newGrips = []
-        gripIndex = 0
-        for i in ctrlPts:
-            newPt = (i.X, i.Y, (i.Z + gripHeights[gripIndex]))
-            newGrips.append(newPt)
-            gripIndex = gripIndex + 1
+            # MODIFY CURVE TO ENTERED GRADE
+            rs.CopyObject(crv)
+            rs.ObjectGripLocations(crv, newGrips)
+            rs.EnableObjectGrips(crv, enable=False)
 
-        # MODIFY CURVE TO ENTERED GRADE
-        rs.CopyObject(crv)
-        grips = rs.ObjectGripLocations(crv, newGrips)
-        rs.EnableObjectGrips(crv, enable=False)
+        if height:
+            gripHeights = []
+            for i in ctrlPts:
+                paramNum = rs.CurveClosestPoint(crv, i)
+                normParam = (rs.CurveNormalizedParameter(crv, paramNum)) * 100
+                gripHeights.append((height / 100) * normParam)
+
+            newGrips = []
+            gripIndex = 0
+            for i in ctrlPts:
+                newPt = (i.X, i.Y, (i.Z + gripHeights[gripIndex]))
+                newGrips.append(newPt)
+                gripIndex += 1
+
+            rs.CopyObject(crv)
+            rs.ObjectGripLocations(crv, newGrips)
+            rs.EnableObjectGrips(crv, enable=False)
 
         rs.EnableRedraw(True)
 
-    except:
-        print("Failed to execute")
-        rs.EnableRedraw(True)
-        return
+    # except:
+    #     print("Failed to execute")
+    #     rs.EnableRedraw(True)
+    #     return
 
 
 # Run Script

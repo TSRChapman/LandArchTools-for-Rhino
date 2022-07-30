@@ -26,15 +26,14 @@ def ShowRL():
     try:
 
         scale, imperial = scaling()
-
         def GetPointDynamicDrawFunc(sender, args):
             point = args.CurrentPoint
 
             circle = rg.Circle(point, 1 * scale)
-            line01 = rg.Line(point, rg.Point3d(point.X + 1, point.Y, point.Z))
-            line02 = rg.Line(point, rg.Point3d(point.X - 1, point.Y, point.Z))
-            line03 = rg.Line(point, rg.Point3d(point.X, point.Y + 1, point.Z))
-            line04 = rg.Line(point, rg.Point3d(point.X, point.Y - 1, point.Z))
+            line01 = rg.Line(point, rg.Point3d(point.X + (1 * scale), point.Y, point.Z))
+            line02 = rg.Line(point, rg.Point3d(point.X - (1 * scale), point.Y, point.Z))
+            line03 = rg.Line(point, rg.Point3d(point.X, point.Y + (1 * scale), point.Z))
+            line04 = rg.Line(point, rg.Point3d(point.X, point.Y - (1 * scale), point.Z))
             midpoint = line03.PointAt(0.5)
 
             if imperial == False:
@@ -92,12 +91,12 @@ def scaling():
             and unitNum != 5
         ):
             imperial = True
-            # struct unit system for current file
+            # struct unit system for cu2rrent file
             unitSystem = System.Enum.ToObject(r.UnitSystem, unitNum)
             # struct unitsystem obj for script use, using feet (9)
             internalSystem = System.Enum.ToObject(r.UnitSystem, 9)
             # Scale units to model units
-            scale = r.RhinoMath.UnitScale(unitSystem, internalSystem)
+            scale = r.RhinoMath.UnitScale(internalSystem, unitSystem)
             if scale:
                 return scale, imperial
         else:
@@ -107,7 +106,7 @@ def scaling():
             # struct unitsystem obj for script use, using meteres (4)
             internalSystem = System.Enum.ToObject(r.UnitSystem, 4)
             # Scale units to model units
-            scale = r.RhinoMath.UnitScale(unitSystem, internalSystem)
+            scale = r.RhinoMath.UnitScale(internalSystem, unitSystem)
             if scale:
                 return scale, imperial
     except:
