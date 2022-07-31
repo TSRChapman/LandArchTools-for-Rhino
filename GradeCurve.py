@@ -31,7 +31,7 @@ def GradeCurve():
             return False
 
         grade = rs.GetReal(
-            message="Enter grade ratio number 1:XXX",
+            message="Enter grade ratio number, or ENTER for height",
             minimum=0.001,
             maximum=None,
         )

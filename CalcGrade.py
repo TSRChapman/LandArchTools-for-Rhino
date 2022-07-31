@@ -1,6 +1,6 @@
 """
 
-Copyright <2021> <Thomas Chapman>
+Copyright <2022> <Thomas Chapman>
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
 WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
@@ -11,12 +11,16 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 
 # Calculate grade between two given points
 # By Thomas Chapman on 11/01/2021
+# Update Thomas Chapman on 31/07/2021
 
 import rhinoscriptsyntax as rs
 import math as m
 import scriptcontext as sc
 import System
 import Rhino as r
+import Rhino.Input as ri
+import Rhino.Commands as rc
+import Rhino.Geometry as rg
 
 
 # Determine Unit system and scale m input to unit system scale and close if not mm, cm, m
@@ -27,9 +31,81 @@ def CalcGrade():
     try:
         scale, imperial = scaling()
 
-        # Get points from user
-        pt1 = rs.GetPoint("Pick the first point")
-        pt2 = rs.GetPoint("Pick the second point")
+        # Colours
+        pinkColour = System.Drawing.Color.FromArgb(255, 0, 133)
+        blueColour = System.Drawing.Color.FromArgb(82, 187, 209)
+        greyColour = System.Drawing.Color.FromArgb(216, 220, 219)
+        blackColour = System.Drawing.Color.FromArgb(0, 0, 0)
+
+        def GetPointDynamicDrawFunc(sender, args):
+            # draw a line from the first picked point to the current mouse point
+            currentPoint = args.CurrentPoint
+
+            if currentPoint.Z == 0:
+                projectedPoint = rg.Point3d(currentPoint.X, currentPoint.Y, pt1.Z)
+                line01 = rg.Line(pt1, currentPoint)
+                line02 = rg.Line(currentPoint, projectedPoint)
+                line03 = rg.Line(projectedPoint, pt1)
+                midPoint01 = line01.PointAt(0.5)
+                circle = rg.Circle(pt1, line03.Length)
+                args.Display.DrawCircle(circle, blackColour, 2)
+                args.Display.DrawLine(line01, blueColour, 4)
+                args.Display.DrawDot(midPoint01, "No Grade", greyColour, blackColour)
+
+            else:
+                projectedPoint = rg.Point3d(currentPoint.X, currentPoint.Y, pt1.Z)
+                line01 = rg.Line(pt1, currentPoint)
+                line02 = rg.Line(currentPoint, projectedPoint)
+                line03 = rg.Line(projectedPoint, pt1)
+                midPoint01 = line01.PointAt(0.5)
+                circle = rg.Circle(pt1, line03.Length)
+
+                # Calculate grade
+                hypotenuse = rs.Distance(pt1, currentPoint)
+
+                # Find the rise of given points in any order
+                if pt1.Z > currentPoint.Z:  # this is the negative direction
+                    rise = pt1.Z - currentPoint.Z
+                elif pt1.Z < currentPoint.Z:
+                    rise = currentPoint.Z - pt1.Z  # this is the positive direction
+
+                # Find the run of given points
+                run = m.sqrt(hypotenuse**2 - rise**2)
+
+                # Detect model units and scale to mm, if mm do nothing
+                rise = rise * scale
+                run = run * scale
+
+                grade = run / rise
+                if imperial == True:
+                    grade = (1 / grade) * 100
+                    gradeText = str(abs(round(grade, 2))) + "%"
+                else:
+                    gradeText = "1:" + str(abs(round(grade, 2)))
+                rs.EnableRedraw(True)
+
+                args.Display.DrawCircle(circle, blackColour, 2)
+                args.Display.DrawLine(line01, blueColour, 4)
+                args.Display.DrawLine(line02, pinkColour, 5)
+                args.Display.DrawLine(line03, blueColour, 4)
+                args.Display.DrawDot(midPoint01, gradeText, greyColour, blackColour)
+
+        # Get first point
+        gp = ri.Custom.GetPoint()
+        gp.Get()
+        if gp.CommandResult() == rc.Result.Success:
+            pt1 = gp.Point()
+            gp.DynamicDraw += GetPointDynamicDrawFunc
+            gp.Get()
+            if gp.CommandResult() == rc.Result.Success:
+                pt2 = gp.Point()
+            else:
+                print("Failed to get Second Point")
+                return False
+        else:
+            print("Failed to get First Point")
+            return False
+
         if pt1:
             if pt2:
                 rs.EnableRedraw(False)
@@ -75,7 +151,6 @@ def CalcGrade():
         print("Failed to execute")
         rs.EnableRedraw(True)
         return
-
 
 def scaling():
     try:
