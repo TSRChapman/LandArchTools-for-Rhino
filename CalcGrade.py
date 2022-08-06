@@ -85,8 +85,8 @@ def CalcGrade():
                 rs.EnableRedraw(True)
 
                 args.Display.DrawCircle(circle, blackColour, 2)
-                args.Display.DrawLine(line01, blueColour, 4)
-                args.Display.DrawLine(line02, pinkColour, 5)
+                args.Display.DrawLine(line01, pinkColour, 4)
+                args.Display.DrawLine(line02, blueColour, 5)
                 args.Display.DrawLine(line03, blueColour, 4)
                 args.Display.DrawDot(midPoint01, gradeText, greyColour, blackColour)
 
@@ -137,9 +137,8 @@ def CalcGrade():
                     exit()
 
                 # Print text dot to screen
-                curve = rs.AddCurve([pt1, pt2])
-                midpoint = rs.CurveMidPoint(curve)
-                rs.DeleteObject(curve)
+                curve = rg.Line(pt1, pt2)
+                midpoint = curve.PointAt(0.5)
                 if imperial == True:
                     grade = (1 / grade) * 100
                     rs.AddTextDot(str(abs(round(grade, 2))) + "%", midpoint)
