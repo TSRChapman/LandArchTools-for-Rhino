@@ -64,9 +64,13 @@ def ShowRL():
             pointZ = pointZ * scale
 
             if imperial == False:
-                rs.AddTextDot("+RL " + str(round(pointZ, 3)) + " m", point)
+                textDot = rs.AddTextDot("+RL " + str(round(pointZ, 3)) + " m", point)
             if imperial == True:
-                rs.AddTextDot("+RL " + str(round(pointZ, 3)) + " ft", point)
+                textDot = rs.AddTextDot("+RL " + str(round(pointZ, 3)) + " ft", point)
+
+            # Add user key and value for later identification
+            rs.SetUserText(textDot, "LandArchTools", "RLTextDot", True)
+
 
             # Copy RL to Clipboard
             RL = str(round(pointZ, 3))
