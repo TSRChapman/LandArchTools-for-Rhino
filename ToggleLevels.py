@@ -35,7 +35,8 @@ def ToggleLevels():
     # Loop through all textdots in document, check userdata and check if visible, toggle visibility
     visiList = []
     tdl1, tdl2 = itertools.tee(textdotList, 2)
-    
+
+    #in case some rl textdots are already hidden, check and turn all on
     for i in tdl1:
         visiList.append(i.IsHidden)
     if sum(visiList) == 0:
