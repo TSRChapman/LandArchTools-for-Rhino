@@ -29,18 +29,22 @@ def Height():
             line03 = rg.Line(projectedPoint, pt01)
             midPoint01 = line02.PointAt(0.5)
             midPoint02 = line03.PointAt(0.5)
+            midPoint03 = line01.PointAt(0.5)
             circle = rg.Circle(pt01, line03.Length)
 
             height = round((currentPoint.Z - pt01.Z), 3)
             height = "H | " + str(height)
             length = "L | " + (str(round(abs(line03.Length), 3)))
+            distance = "D | " + (str(round(abs(line01.Length), 3)))
 
             args.Display.DrawCircle(circle, blackColour, 2)
             args.Display.DrawLine(line01, blueColour, 4)
             args.Display.DrawLine(line02, pinkColour, 5)
             args.Display.DrawLine(line03, blueColour, 4)
+            args.Display.DrawDot(midPoint03, distance, greyColour, blackColour)
             args.Display.DrawDot(midPoint02, length, greyColour, blackColour)
             args.Display.DrawDot(midPoint01, height, greyColour, blackColour)
+            
 
         pinkColour = System.Drawing.Color.FromArgb(255, 0, 133)
         blueColour = System.Drawing.Color.FromArgb(82, 187, 209)
