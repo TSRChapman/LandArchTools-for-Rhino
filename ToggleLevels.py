@@ -13,7 +13,6 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # By Thomas Chapman on 06/08/2022
 
 
-
 import scriptcontext as sc
 import Rhino as r
 import itertools
@@ -36,14 +35,14 @@ def ToggleLevels():
     visiList = []
     tdl1, tdl2 = itertools.tee(textdotList, 2)
 
-    #in case some rl textdots are already hidden, check and turn all on
+    # in case some rl textdots are already hidden, check and turn all on
     for i in tdl1:
         visiList.append(i.IsHidden)
     if sum(visiList) == 0:
         hidden = False
     else:
         hidden = True
-    
+
     for i in tdl2:
         stringCheck = i.Geometry.UserStringCount
         if stringCheck > 0:
@@ -55,6 +54,7 @@ def ToggleLevels():
                     sc.doc.Objects.Hide(i, True)
 
     sc.doc.Views.Redraw()
+
 
 if __name__ == "__main__":
     ToggleLevels()
