@@ -1,12 +1,9 @@
 '''
-
 Copyright <2021> <Thomas Chapman>
-
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
 WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
 '''
 
 # Truncate World Coordinate
@@ -27,11 +24,11 @@ def TruncateWorldCoordinate():
 
             # Add origin layer and lock it
             rs.AddLayer("_ORIGIN_", (255, 0, 0), visible=True, locked=True)
-            originPoint = rs.AddPoint(point)
+            originPoint = rs.AddPoint(point.X, point.Y, 0)
 
             # Move all objects to origin
             allObj = rs.AllObjects()
-            vector = rs.VectorCreate((0, 0, 0), point)
+            vector = rs.VectorCreate((0, 0, 0), (point.X, point.Y, 0))
             rs.MoveObjects(allObj, vector)
 
             # Draw origin marker`
